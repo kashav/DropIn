@@ -1,4 +1,4 @@
 import { AppRegistry } from 'react-native'
-import UofTDropIn from './app'
+import DropIn from './app'
 
-AppRegistry.registerComponent('UofTDropIn', () => UofTDropIn)
+AppRegistry.registerComponent('DropIn', () => DropIn)
