@@ -25,14 +25,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderColor: 'rgba(0,0,0,0.1)',
     padding: 20,
-    marginTop: 5,
+    marginTop: 2.5,
     shadowColor: '#ccc',
     shadowOffset: { width: 2, height: 2, },
     shadowOpacity: 0.8,
     shadowRadius: 3,
   },
   text: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#000',
   },
   linkText: {

@@ -4,12 +4,14 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TouchableWithoutFeedback,
   View,
+  ScrollView,
 } from 'react-native';
 
 import * as courseUtils from '../../util/courses';
 
-export default class CurrentCourseList extends Component {
+export default class CurrentClassList extends Component {
   constructor(props) {
     super(props);
 
@@ -67,9 +69,23 @@ export default class CurrentCourseList extends Component {
   }
 
   render() {
-    if (this.state.currentCourses.length === 0) {
-      return null;
+    if (Object.keys(this.state.currentCourses).length === 0) {
+      return (
+        <ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this.onRefresh.bind(this)}
+              color={'rgb(0, 42, 92)'}
+            />
+          }>
+          <Text style={[styles.listElement, styles.noResultsElement]}>
+            <Text style={styles.listElementText}>Couldn't find any classes! Check back later.</Text>
+          </Text>
+        </ScrollView>
+      );
     }
+
     return (
       <ListView
         dataSource={this.state.dataSource}
@@ -88,6 +104,12 @@ export default class CurrentCourseList extends Component {
 }
 
 const styles = StyleSheet.create({
+  noResultsElement: {
+    textAlign: 'center',
+    margin: 0,
+    padding: 20,
+    minHeight: 0
+  },
   listElement: {
     borderWidth: 1,
     backgroundColor: '#fff',

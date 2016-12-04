@@ -9,7 +9,8 @@ import {
 import Spinner from 'react-native-loading-spinner-overlay';
 import { vw, vh, vmin, vmax } from 'react-native-viewport-units';
 
-import CurrentCourseList from '../../components/CurrentCourseList';
+import CurrentClassList from '../../components/CurrentClassList';
+import EmptyRoomList from '../../components/EmptyRoomList'
 import ErrorCard from '../../components/ErrorCard';
 import InfoPanel from '../../components/InfoPanel';
 import TabView from '../../components/TabView';
@@ -17,7 +18,7 @@ import Toolbar from '../../components/Toolbar';
 
 export default class Root extends Component {
   state = {
-    title: 'UofT Drop-In',
+    title: 'Drop-In',
     data: [],
     lastUpdated: null,
     error: null,
@@ -73,16 +74,16 @@ export default class Root extends Component {
 
     switch(i) {
       case 0:
-        title = 'Current & upcoming classes';
+        title = 'Classes';
         break;
       case 1:
-        title = 'Empty lecture halls/rooms';
+        title = 'Rooms';
         break;
       case 2:
         title = 'Help & feedback';
         break;
       default:
-        title = 'UofT Drop-In';
+        title = 'Drop-In';
     }
 
     this.setState({ title })
@@ -105,9 +106,10 @@ export default class Root extends Component {
       component = (
         <TabView onChangeTab={this.onChangeTab.bind(this)}>
           <View tabLabel='class' style={styles.tab}>
-            <CurrentCourseList data={this.state.data} sort={this.state.sort}/>
+            <CurrentClassList data={this.state.data} sort={this.state.sort}/>
           </View>
           <View tabLabel='lock-open' style={styles.tab}>
+            <EmptyRoomList />
           </View>
           <View tabLabel='info-outline' style={styles.tab}>
             <InfoPanel />
