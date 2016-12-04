@@ -25,16 +25,25 @@ export default class CurrentClassList extends Component {
     };
   }
 
+  resort(sort) {
+    let { currentCourses, dataSource: ds } = this.state;
+
+    this.setState({ currentCourses: [], dataSource: ds.cloneWithRows([]) }, () => {
+      currentCourses = courseUtils.sort(JSON.parse(JSON.stringify(Object.values(currentCourses))), sort);
+      ds = ds.cloneWithRows(Object.keys(currentCourses));
+
+      this.setState({ currentCourses, dataSource: ds });
+    });
+  }
+
   onRefresh() {
-    this.setState({ refreshing: true });
+    let { currentCourses, dataSource: ds } = this.state;
 
-    let currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.data)), this.props.sort);
-    let dataSource = this.state.dataSource.cloneWithRows(Object.keys(currentCourses));
+    this.setState({ refreshing: true, currentCourses: [], dataSource: ds.cloneWithRows([]) }, () => {
+      currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.data)), this.props.sort);
+      ds = this.state.dataSource.cloneWithRows(Object.keys(currentCourses));
 
-    this.setState({
-      currentCourses,
-      dataSource,
-      refreshing: false
+      this.setState({ currentCourses, dataSource: ds, refreshing: false });
     });
   }
 
@@ -80,7 +89,7 @@ export default class CurrentClassList extends Component {
             />
           }>
           <Text style={[styles.listElement, styles.noResultsElement]}>
-            <Text style={styles.listElementText}>Couldn't find any classes! Check back later or <Text style={{fontStyle: 'italic'}}>pull down to reload</Text>.</Text>
+            <Text style={styles.listElementText}>No classes going on right now! Check back later.</Text>
           </Text>
         </ScrollView>
       );

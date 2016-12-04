@@ -1,23 +1,23 @@
 const ALL_DAYS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
-// const TIMES = [{
-//   'currentDay': 'MONDAY',
-//   'currentTime': 46900
-// }, {
-//   'currentDay': 'TUESDAY',
-//   'currentTime': 35340
-// }, {
-//   'currentDay': 'WEDNESDAY',
-//   'currentTime': 60000
-// }];
+const TIMES = [{
+  'currentDay': 'MONDAY',
+  'currentTime': 46900
+}, {
+  'currentDay': 'TUESDAY',
+  'currentTime': 35340
+}, {
+  'currentDay': 'WEDNESDAY',
+  'currentTime': 60000
+}];
 
 export function findCurrentCourses(allCourses, sortMethod) {
   let now = new Date();
 
-  let currentDay = ALL_DAYS[now.getDay()];
-  let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
+  // let currentDay = ALL_DAYS[now.getDay()];
+  // let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
 
-  // let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
+  let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
 
   let courses = allCourses.map(c => {
     c.meeting_sections = c.meeting_sections.map(s => {
@@ -32,7 +32,6 @@ export function findCurrentCourses(allCourses, sortMethod) {
   }).filter(c => c);
 
   courses = sort(courses, sortMethod);
-  console.log(courses);
 
   let coursesObj = {};
 

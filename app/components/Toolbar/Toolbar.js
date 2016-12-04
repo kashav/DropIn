@@ -19,12 +19,10 @@ export default class Toolbar extends Component {
   render() {
     return (
       <Icon.ToolbarAndroid
-        actions={[
-          { title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' },
-        ]}
+        actions={[{ title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' }]}
         onActionSelected={this.onActionSelected.bind(this)}
         style={styles.toolbar}
-        title={this.props.title || 'UofT Drop-In'}
+        title={this.props.title || 'Drop-In'}
         titleColor={'#fff'}
       />
     );
