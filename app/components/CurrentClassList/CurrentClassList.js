@@ -80,7 +80,7 @@ export default class CurrentClassList extends Component {
             />
           }>
           <Text style={[styles.listElement, styles.noResultsElement]}>
-            <Text style={styles.listElementText}>Couldn't find any classes! Check back later.</Text>
+            <Text style={styles.listElementText}>Couldn't find any classes! Check back later or <Text style={{fontStyle: 'italic'}}>pull down to reload</Text>.</Text>
           </Text>
         </ScrollView>
       );
@@ -124,20 +124,20 @@ const styles = StyleSheet.create({
     minHeight: 70
   },
   listElementText: {
-    fontSize: 11.5,
     color: '#000',
   },
   courseMain: {
     lineHeight: 20,
+    fontSize: 13,
   },
   courseCode: {
     fontWeight: '500'
   },
   courseName: {},
   courseMeetingSections: {
-    fontSize: 11,
-    color: '#424242',
-    lineHeight: 20,
+    lineHeight: 25,
+    fontFamily: 'sans-serif-light',
+    fontSize: 12.5,
   },
   courseTime: {
   }

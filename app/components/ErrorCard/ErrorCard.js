@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#000',
-    fontSize: 12,
     textAlign: 'center'
   },
   errorTextBig: {

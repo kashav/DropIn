@@ -10,7 +10,7 @@ export default class InfoPanel extends Component {
       <View style={styles.card}>
         <Text style={styles.text}>
           <Text>Built by <Text style={styles.linkText} onPress={() => this.linkPressed('http://kshvmdn.com')}>Kashav Madan</Text>.</Text>{`\n\n`}
-          Find a bug or have a feature request? File an issue on <Text style={styles.linkText} onPress={() => this.linkPressed('https://github.com/kshvmdn/uoftdropin')}>GitHub</Text>.{`\n\n`}
+          Find a bug or have a feature request? File an issue on <Text style={styles.linkText} onPress={() => this.linkPressed('https://github.com/kshvmdn/dropin')}>GitHub</Text>.{`\n\n`}
           This app is in no way affiliated with the University of Toronto.{`\n\n\n\n`}
           <Text style={styles.highlightText}>Drop-In</Text> is powered by <Text style={styles.linkText} onPress={() => this.linkPressed('https://cobalt.qas.im')}>Cobalt</Text>.
         </Text>
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   text: {
-    fontSize: 12,
     color: '#000',
   },
   linkText: {

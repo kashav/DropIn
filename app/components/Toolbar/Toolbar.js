@@ -20,7 +20,7 @@ export default class Toolbar extends Component {
     return (
       <Icon.ToolbarAndroid
         actions={[
-          { title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' },
+          { title: 'Sort', iconName: 'filter-list', iconSize: 20, show: 'always' },
         ]}
         onActionSelected={this.onActionSelected.bind(this)}
         style={styles.toolbar}

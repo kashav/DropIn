@@ -41,7 +41,7 @@ export default class TabBar extends Component {
           <TouchableOpacity key={tab} onPress={() => this.props.goToPage(i)} style={styles.tab}>
             <Icon
               name={tab}
-              size={25}
+              size={30}
               color={this.props.activeTab === i ? 'rgb(0, 42, 92)' : 'rgb(204, 204, 204)'}
               ref={(icon) => { this.state.tabIcons[i] = icon; }}
             />

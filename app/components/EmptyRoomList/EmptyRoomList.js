@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   text: {
-    fontSize: 11.5,
     color: '#000',
     textAlign: 'center',
   }
