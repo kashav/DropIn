@@ -11,6 +11,7 @@ import { vw, vh, vmin, vmax } from 'react-native-viewport-units';
 
 import CurrentCourseList from '../../components/CurrentCourseList';
 import ErrorCard from '../../components/ErrorCard';
+import InfoPanel from '../../components/InfoPanel';
 import TabView from '../../components/TabView';
 import Toolbar from '../../components/Toolbar';
 
@@ -72,10 +73,13 @@ export default class Root extends Component {
 
     switch(i) {
       case 0:
-        title = 'Current / upcoming classes';
+        title = 'Current & upcoming classes';
         break;
       case 1:
-        title = 'Empty lecture halls / rooms';
+        title = 'Empty lecture halls/rooms';
+        break;
+      case 2:
+        title = 'Help & feedback';
         break;
       default:
         title = 'UofT Drop-In';
@@ -106,6 +110,7 @@ export default class Root extends Component {
           <View tabLabel='lock-open' style={styles.tab}>
           </View>
           <View tabLabel='info-outline' style={styles.tab}>
+            <InfoPanel />
           </View>
         </TabView>
       );
@@ -131,19 +136,5 @@ const styles = StyleSheet.create({
     padding: 0,
     paddingHorizontal: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.01)',
-  },
-  card: {
-    borderWidth: 1,
-    backgroundColor: '#fff',
-    borderColor: 'rgba(0,0,0,0.1)',
-    marginBottom: 20,
-    padding: 15,
-    shadowColor: '#ccc',
-    shadowOffset: { width: 2, height: 2, },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
-  },
-  cardText: {
-    fontSize: 12
   },
 });

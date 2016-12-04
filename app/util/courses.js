@@ -17,7 +17,6 @@ export function findCurrentCourses(allCourses, sort) {
   // let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
 
   let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
-  console.log(currentDay, currentTime);
 
   let courses = allCourses.map(c => {
     c.meeting_sections = c.meeting_sections.map(s => {
@@ -34,7 +33,7 @@ export function findCurrentCourses(allCourses, sort) {
   let coursesObj = {};
 
   for (course of courses) {
-    // Use courseid + currentDay + currentTime to establish at least some
+    // Use courseid + currentDay + currentTime as key to establish at least some
     // sort of uniqueness, since if they refresh after short periods of time,
     // the current courses will likely not have changed.
     coursesObj[`${course.id}_${currentDay}_${currentTime}`] = course
