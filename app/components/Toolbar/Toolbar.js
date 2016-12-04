@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ToolbarAndroid from 'ToolbarAndroid';
 
@@ -8,10 +8,10 @@ export default class Toolbar extends Component {
     super(props);
   }
 
-  onActionSelected(button) {
-    switch(button) {
+  onActionSelected(position) {
+    switch(position) {
       case 0:
-        Alert.alert('Filter', 'You clicked filter!');
+        this.props.onSortToggle();
         break;
     }
   }
@@ -20,7 +20,7 @@ export default class Toolbar extends Component {
     return (
       <Icon.ToolbarAndroid
         actions={[
-          { title: 'Sort', iconName: 'filter-list', iconSize: 20, show: 'always' },
+          { title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' },
         ]}
         onActionSelected={this.onActionSelected.bind(this)}
         style={styles.toolbar}

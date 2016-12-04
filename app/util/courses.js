@@ -11,7 +11,7 @@ const TIMES = [{
   'currentTime': 60000
 }];
 
-export function findCurrentCourses(allCourses, sort) {
+export function findCurrentCourses(allCourses, sortMethod) {
   let now = new Date();
 
   // let currentDay = ALL_DAYS[now.getDay()];
@@ -30,6 +30,9 @@ export function findCurrentCourses(allCourses, sort) {
     if (c.meeting_sections.length > 0)
       return c;
   }).filter(c => c);
+
+  courses = sort(courses, sortMethod);
+  console.log(courses);
 
   let coursesObj = {};
 
@@ -56,6 +59,19 @@ export function formTimeString(secondsSinceMidnight) {
   return `${hour}:${minute < 10 ? '0' : ''}${minute} ${period}`;
 }
 
-export function sortCourses(coursesToSort, sortMethod) {
-  return coursesToSort;
+export function sort(courses, sortMethod) {
+  if (sortMethod === 'CODE')
+    return courses.sort((a, b) => (a.code > b.code) ? 1 : ((b.code > a.code) ? -1 : 0));
+
+  if (sortMethod === 'NAME')
+    return courses.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+
+  if (sortMethod === 'TIME')
+    return courses.sort((a, b) => (a.meeting_sections[0].times[0].start > b.meeting_sections[0].times[0].start) ? 1 : ((b.meeting_sections[0].times[0].start > a.meeting_sections[0].times[0].start) ? -1 : 0));
+
+  // TODO
+  if (sortMethod === 'LOCATION')
+    return courses;
+
+  return courses
 }

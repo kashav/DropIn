@@ -4,6 +4,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  ToastAndroid,
   View,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -23,7 +24,7 @@ export default class Root extends Component {
     lastUpdated: null,
     error: null,
     loading: true,
-    sort: 'NAME'
+    sort: 'CODE'
   };
 
   componentDidMount() {
@@ -89,6 +90,28 @@ export default class Root extends Component {
     this.setState({ title })
   }
 
+  onSortToggle() {
+    let sort;
+
+    switch(this.state.sort) {
+      case 'CODE':
+        sort = 'TIME';
+        break;
+      case 'TIME':
+        sort = 'LOCATION';
+        break;
+      case 'LOCATION':
+        sort = 'NAME';
+        break;
+      case 'NAME':
+      default:
+        sort = 'CODE';
+    }
+
+    ToastAndroid.show(`Sorting by ${sort.slice(0, 1)}${sort.slice(1).toLowerCase()}`, ToastAndroid.SHORT);
+    this.setState({ sort });
+  }
+
   render() {
     if (this.state.data.length === 0) {
       return (
@@ -121,7 +144,7 @@ export default class Root extends Component {
     return (
       <View style={styles.container}>
         <StatusBar />
-        <Toolbar title={this.state.title}/>
+        <Toolbar title={this.state.title} onSortToggle={this.onSortToggle.bind(this)}/>
         {component}
       </View>
     );

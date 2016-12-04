@@ -11,8 +11,8 @@ export default class InfoPanel extends Component {
         <Text style={styles.text}>
           <Text>Built by <Text style={styles.linkText} onPress={() => this.linkPressed('http://kshvmdn.com')}>Kashav Madan</Text>.</Text>{`\n\n`}
           Find a bug or have a feature request? File an issue on <Text style={styles.linkText} onPress={() => this.linkPressed('https://github.com/kshvmdn/dropin')}>GitHub</Text>.{`\n\n`}
-          This app is in no way affiliated with the University of Toronto.{`\n\n\n\n`}
-          <Text style={styles.highlightText}>Drop-In</Text> is powered by <Text style={styles.linkText} onPress={() => this.linkPressed('https://cobalt.qas.im')}>Cobalt</Text>.
+          <Text style={styles.highlightText}>Drop-In</Text> is powered by <Text style={styles.linkText} onPress={() => this.linkPressed('https://cobalt.qas.im')}>Cobalt</Text>.{`\n\n\n\n`}
+          This app is in no way affiliated with the University of Toronto.
         </Text>
       </View>
     );
