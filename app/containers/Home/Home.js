@@ -24,35 +24,16 @@ export default class Home extends Component {
     this.state = {
       sort: 'CODE',
       title: 'Drop-In',
-      classList: null,
       activeTab: 0,
     };
   }
 
-  onChangeTab({ i, ref }) {
-    this.setState({ activeTab: i });
-  }
-
   onSortToggle() {
-    let sort;
-
-    switch(this.state.sort) {
-      case 'CODE':
-        sort = 'TIME';
-        break;
-      case 'TIME':
-        sort = 'LOCATION';
-        break;
-      case 'LOCATION':
-        sort = 'NAME';
-        break;
-      case 'NAME':
-      default:
-        sort = 'CODE';
-    }
-
-    this.state.classList.resort(sort);
-    ToastAndroid.show(`Sorting by ${sort.slice(0, 1)}${sort.slice(1).toLowerCase()}`, ToastAndroid.SHORT);
+    let sortTypes = ['CODE', 'TIME', 'LOCATION', 'NAME'];
+    let i = sortTypes.indexOf(this.state.sort);
+    let sort = i + 1 >= sortTypes.length ? sortTypes[0] : sortTypes[i+1];
+    this.classList.resort(sort);
+    ToastAndroid.show(`Sorting by ${sort.toLowerCase()}`, ToastAndroid.SHORT);
     this.setState({ sort });
   }
 
@@ -71,12 +52,12 @@ export default class Home extends Component {
       component = <ErrorCard />;
     } else {
       component = (
-        <TabView onChangeTab={this.onChangeTab.bind(this)}>
+        <TabView onChangeTab={({ i, ref }) => this.setState({ activeTab: i })}>
           <View tabLabel='class' style={styles.tab}>
             <CurrentClassList
-             data={this.props.data}
-             sort={this.state.sort}
-             ref={(list) => { this.state.classList = list; }}/>
+              data={this.props.data}
+              sort={this.state.sort}
+              ref={classList => { this.classList = classList; }} />
           </View>
           <View tabLabel='lock-open' style={styles.tab}>
             <EmptyRoomList />
@@ -91,7 +72,7 @@ export default class Home extends Component {
     return (
       <View style={styles.container}>
         <StatusBar />
-        <Toolbar title={this.state.title} onSortToggle={this.onSortToggle.bind(this)}/>
+        <Toolbar title={this.state.title} showActions={!this.props.error && this.state.activeTab === 0} onSortToggle={this.onSortToggle.bind(this)} />
         {component}
       </View>
     );
@@ -106,7 +87,6 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     padding: 0,
-    paddingHorizontal: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.01)',
   },
 });

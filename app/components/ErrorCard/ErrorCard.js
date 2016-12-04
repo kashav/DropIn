@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: '#fff',
     borderColor: 'rgba(0,0,0,0.1)',
-    marginBottom: 20,
     padding: 15,
     shadowColor: '#ccc',
     shadowOffset: { width: 2, height: 2, },
@@ -37,10 +36,11 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#000',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontSize: 13,
   },
   errorTextBig: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold'
   },
 });

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AsyncStorage, Navigator } from 'react-native';
+import { AsyncStorage } from 'react-native';
 
 import Home from '../Home';
 
@@ -11,7 +11,7 @@ export default class Root extends Component {
   };
 
   componentDidMount() {
-    this.loadInitialState().done()
+    this.loadInitialState().done();
   }
 
   loadInitialState = async () => {
@@ -54,13 +54,6 @@ export default class Root extends Component {
   }
 
   render() {
-    return (
-      <Navigator
-        initialRoute={{ title: 'Home', index: 0 }}
-        renderScene={(route, navigator) =>
-          <Home data={this.state.data} error={this.state.error}/>
-        }
-      />
-    );
+    return <Home data={this.state.data} error={this.state.error}/>
   }
 }

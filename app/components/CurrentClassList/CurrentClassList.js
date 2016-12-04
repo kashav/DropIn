@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import {
   ListView,
+  RecyclerViewBackedScrollView,
   RefreshControl,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
+  TouchableHighlight,
   View,
   ScrollView,
 } from 'react-native';
 
+import CourseModal from '../CourseModal';
 import * as courseUtils from '../../util/courses';
 
 export default class CurrentClassList extends Component {
@@ -21,7 +23,7 @@ export default class CurrentClassList extends Component {
     this.state = {
       currentCourses,
       dataSource: ds.cloneWithRows(Object.keys(currentCourses)),
-      refreshing: false
+      refreshing: false,
     };
   }
 
@@ -52,27 +54,29 @@ export default class CurrentClassList extends Component {
 
     return (
       <View style={styles.listElement}>
-        <Text style={styles.listElementText}>
-          <Text style={styles.courseMain}>
-            <Text style={styles.courseCode}>{course.code}: </Text>
-            <Text style={styles.courseName}>{course.name}</Text>
-          </Text>{`\n`}
-          <Text style={styles.courseMeetingSections}>
-            {course.meeting_sections.map((s, i) => (
-              <Text key={i} style={styles.coureMeetingSection}>
-                <Text style={styles.courseTime}>
-                  {courseUtils.formTimeString(s.times[0].start)} - {courseUtils.formTimeString(s.times[0].end)}
-                </Text>&nbsp;·&nbsp;
-                <Text style={styles.courseLocation}>
-                  {s.times[0].location}
-                </Text>&nbsp;·&nbsp;
-                <Text style={styles.enrolment}>
-                  {s.enrolment}/{s.size} {`(${((s.enrolment/s.size) * 100).toFixed(1)}%)`}
-                </Text>{`\n`}
-              </Text>
-            ))}
+        <TouchableHighlight onPress={() => this.modal.open(course)} underlayColor={'#fff'}>
+          <Text style={styles.listElementText}>
+            <Text style={styles.courseMain}>
+              <Text style={styles.courseCode}>{course.code}: </Text>
+              <Text style={styles.courseName}>{course.name}</Text>
+            </Text>{`\n`}
+            <Text style={styles.courseMeetingSections}>
+              {course.meeting_sections.map((s, i) => (
+                <Text key={i} style={styles.coureMeetingSection}>
+                  <Text style={styles.courseTime}>
+                    {courseUtils.formTimeString(s.times[0].start)} - {courseUtils.formTimeString(s.times[0].end)}
+                  </Text>&nbsp;·&nbsp;
+                  <Text style={styles.courseLocation}>
+                    {s.times[0].location}
+                  </Text>&nbsp;·&nbsp;
+                  <Text style={styles.enrolment}>
+                    {s.enrolment}/{s.size} {`(${((s.enrolment/s.size) * 100).toFixed(1)}%)`}
+                  </Text>{`\n`}
+                </Text>
+              ))}
+            </Text>
           </Text>
-        </Text>
+        </TouchableHighlight>
       </View>
     );
   }
@@ -96,18 +100,21 @@ export default class CurrentClassList extends Component {
     }
 
     return (
-      <ListView
-        dataSource={this.state.dataSource}
-        refreshControl={
-          <RefreshControl
-            refreshing={this.state.refreshing}
-            onRefresh={this.onRefresh.bind(this)}
-            color={'rgb(0, 42, 92)'}
-          />
-        }
-        renderRow={this.renderRow.bind(this)}
-        style={styles.listView}
-      />
+      <View>
+        <CourseModal ref={modal => { this.modal = modal; }}/>
+        <ListView
+          dataSource={this.state.dataSource}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this.onRefresh.bind(this)}
+              color={'rgb(0, 42, 92)'}
+            />
+          }
+          renderRow={this.renderRow.bind(this)}
+          renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+          style={styles.listView} />
+      </View>
     );
   }
 }
@@ -115,21 +122,14 @@ export default class CurrentClassList extends Component {
 const styles = StyleSheet.create({
   noResultsElement: {
     textAlign: 'center',
-    margin: 0,
-    padding: 20,
     minHeight: 0
   },
+  listView: {
+    zIndex: -1,
+  },
   listElement: {
-    borderWidth: 1,
     backgroundColor: '#fff',
-    borderColor: 'rgba(0,0,0,0.1)',
-    margin: 0,
-    marginVertical: 2.5,
     padding: 15,
-    shadowColor: '#ccc',
-    shadowOffset: { width: 2, height: 2, },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
     minHeight: 70
   },
   listElementText: {
@@ -149,5 +149,9 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
   },
   courseTime: {
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#8e8e8e',
   }
 });

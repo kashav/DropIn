@@ -17,9 +17,10 @@ export default class Toolbar extends Component {
   }
 
   render() {
+    let actions = this.props.showActions ? [{ title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' }] : [];
     return (
       <Icon.ToolbarAndroid
-        actions={[{ title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' }]}
+        actions={actions}
         onActionSelected={this.onActionSelected.bind(this)}
         style={styles.toolbar}
         title={this.props.title || 'Drop-In'}
