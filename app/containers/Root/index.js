@@ -15,8 +15,8 @@ import TabView from '../../components/TabView';
 import Toolbar from '../../components/Toolbar';
 
 export default class Root extends Component {
-  title = 'UofT Drop-In';
   state = {
+    title: 'UofT Drop-In',
     data: [],
     lastUpdated: null,
     error: null,
@@ -67,6 +67,23 @@ export default class Root extends Component {
       .catch(error => this.setState({ error, loading: false }));
   }
 
+  onChangeTab({ i, ref }) {
+    let title;
+
+    switch(i) {
+      case 0:
+        title = 'Current / upcoming classes';
+        break;
+      case 1:
+        title = 'Empty lecture halls / rooms';
+        break;
+      default:
+        title = 'UofT Drop-In';
+    }
+
+    this.setState({ title })
+  }
+
   render() {
     if (this.state.data.length === 0) {
       return (
@@ -82,7 +99,7 @@ export default class Root extends Component {
       component = <ErrorCard />;
     } else {
       component = (
-        <TabView>
+        <TabView onChangeTab={this.onChangeTab.bind(this)}>
           <View tabLabel='class' style={styles.tab}>
             <CurrentCourseList data={this.state.data} sort={this.state.sort}/>
           </View>
@@ -97,7 +114,7 @@ export default class Root extends Component {
     return (
       <View style={styles.container}>
         <StatusBar />
-        <Toolbar title={this.title}/>
+        <Toolbar title={this.state.title}/>
         {component}
       </View>
     );

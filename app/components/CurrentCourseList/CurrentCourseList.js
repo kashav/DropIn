@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {
   ListView,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -12,21 +13,31 @@ export default class CurrentCourseList extends Component {
   constructor(props) {
     super(props);
 
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2,
-      sectionHeaderHasChanged: (s1, s2) => s1 !== s2,
-    });
-
-    const currentCourses = courseUtils.findCurrentCourses(this.props.data, this.props.sort);
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    const currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.data)), this.props.sort);
 
     this.state = {
       currentCourses,
-      dataSource: ds.cloneWithRows(currentCourses.map((o, i) => i))
+      dataSource: ds.cloneWithRows(Object.keys(currentCourses)),
+      refreshing: false
     };
   }
 
-  renderRow(i) {
-    let course = this.state.currentCourses[i];
+  onRefresh() {
+    this.setState({ refreshing: true });
+
+    let currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.data)), this.props.sort);
+    let dataSource = this.state.dataSource.cloneWithRows(Object.keys(currentCourses));
+
+    this.setState({
+      currentCourses,
+      dataSource,
+      refreshing: false
+    });
+  }
+
+  renderRow(id) {
+    let course = this.state.currentCourses[id];
 
     return (
       <View style={styles.listElement}>
@@ -61,9 +72,16 @@ export default class CurrentCourseList extends Component {
     }
     return (
       <ListView
-        style={styles.listView}
         dataSource={this.state.dataSource}
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this.onRefresh.bind(this)}
+            color={'rgb(0, 42, 92)'}
+          />
+        }
         renderRow={this.renderRow.bind(this)}
+        style={styles.listView}
       />
     );
   }
@@ -84,20 +102,20 @@ const styles = StyleSheet.create({
     minHeight: 70
   },
   listElementText: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#000',
   },
   courseMain: {
     lineHeight: 20,
   },
   courseCode: {
-    fontWeight: 'bold'
+    fontWeight: '500'
   },
   courseName: {},
   courseMeetingSections: {
     fontSize: 11,
     color: '#424242',
-    lineHeight: 20
+    lineHeight: 20,
   },
   courseTime: {
   }

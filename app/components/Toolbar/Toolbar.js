@@ -4,8 +4,16 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import ToolbarAndroid from 'ToolbarAndroid';
 
 export default class Toolbar extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   onActionSelected(button) {
-    Alert.alert('Button', `You clicked button ${button}!`);
+    switch(button) {
+      case 0:
+        Alert.alert('Filter', 'You clicked filter!');
+        break;
+    }
   }
 
   render() {
@@ -13,7 +21,6 @@ export default class Toolbar extends Component {
       <Icon.ToolbarAndroid
         actions={[
           { title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' },
-          { title: 'Refresh', iconName: 'refresh', iconSize: 20, show: 'always' }
         ]}
         onActionSelected={this.onActionSelected.bind(this)}
         style={styles.toolbar}
@@ -27,6 +34,6 @@ export default class Toolbar extends Component {
 const styles = StyleSheet.create({
   toolbar: {
     height: 56,
-    backgroundColor: 'rgb(0, 42, 92)',
+    backgroundColor: 'rgb(0, 42, 92)'
   }
 });

@@ -11,6 +11,7 @@ export default class TabView extends Component {
     return (
       <ScrollableTabView
         renderTabBar={() => <TabBar />}
+        onChangeTab={this.props.onChangeTab}
         children={this.props.children}
       />
     )
