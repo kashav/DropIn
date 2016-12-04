@@ -49,12 +49,18 @@ export default class CurrentClassList extends Component {
     });
   }
 
-  renderRow(id) {
-    let course = this.state.currentCourses[id];
+  renderRow(rowData, sectionId, rowId, highlightRow) {
+    let course = this.state.currentCourses[rowData];
 
     return (
       <View style={styles.listElement}>
-        <TouchableHighlight onPress={() => this.modal.open(course)} underlayColor={'#fff'}>
+        <TouchableHighlight
+          onPress={() => {
+            this.modal.open(course);
+            highlightRow(sectionId, rowId);
+          }}
+          underlayColor={'#fff'}
+        >
           <Text style={styles.listElementText}>
             <Text style={styles.courseMain}>
               <Text style={styles.courseCode}>{course.code}: </Text>
@@ -78,6 +84,18 @@ export default class CurrentClassList extends Component {
           </Text>
         </TouchableHighlight>
       </View>
+    );
+  }
+
+  renderSeparator(sectionId, rowId, adjacentRowHighlighted) {
+    return (
+      <View
+        key={`${sectionId}-${rowId}`}
+        style={{
+          height: StyleSheet.hairlineWidth + (adjacentRowHighlighted ? 0.25 : 0),
+          backgroundColor: adjacentRowHighlighted ? 'rgb(0, 42, 92)' : '#8e8e8e',
+        }}
+      />
     );
   }
 
@@ -112,7 +130,7 @@ export default class CurrentClassList extends Component {
             />
           }
           renderRow={this.renderRow.bind(this)}
-          renderSeparator={(sectionId, rowId) => <View key={rowId} style={styles.separator} />}
+          renderSeparator={this.renderSeparator.bind(this)}
           style={styles.listView} />
       </View>
     );
@@ -150,8 +168,4 @@ const styles = StyleSheet.create({
   },
   courseTime: {
   },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#8e8e8e',
-  }
 });
