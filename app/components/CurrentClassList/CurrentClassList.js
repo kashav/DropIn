@@ -18,7 +18,7 @@ export default class CurrentClassList extends Component {
     super(props);
 
     const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-    const currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.data)), this.props.sort);
+    const currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.courses)), this.props.sort);
 
     this.state = {
       currentCourses,
@@ -42,7 +42,7 @@ export default class CurrentClassList extends Component {
     let { currentCourses, dataSource: ds } = this.state;
 
     this.setState({ refreshing: true, currentCourses: [], dataSource: ds.cloneWithRows([]) }, () => {
-      currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.data)), this.props.sort);
+      currentCourses = courseUtils.findCurrentCourses(JSON.parse(JSON.stringify(this.props.courses)), this.props.sort);
       ds = this.state.dataSource.cloneWithRows(Object.keys(currentCourses));
 
       this.setState({ currentCourses, dataSource: ds, refreshing: false });
@@ -73,7 +73,7 @@ export default class CurrentClassList extends Component {
                     {courseUtils.formTimeString(s.times[0].start)} - {courseUtils.formTimeString(s.times[0].end)}
                   </Text>&nbsp;·&nbsp;
                   <Text style={styles.courseLocation}>
-                    {s.times[0].location}
+                    {s.times[0].location.hall}
                   </Text>&nbsp;·&nbsp;
                   <Text style={styles.enrolment}>
                     {s.enrolment}/{s.size} {`(${((s.enrolment/s.size) * 100).toFixed(1)}%)`}
@@ -119,7 +119,7 @@ export default class CurrentClassList extends Component {
 
     return (
       <View>
-        <CourseModal ref={modal => { this.modal = modal; }}/>
+        <CourseModal ref={modal => { this.modal = modal; }} buildings={this.props.buildings}/>
         <ListView
           dataSource={this.state.dataSource}
           refreshControl={
@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
   },
   listView: {
     zIndex: -1,
+    minHeight: 500,
   },
   listElement: {
     backgroundColor: '#fff',

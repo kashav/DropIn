@@ -7,6 +7,7 @@ import {
   View
 } from 'react-native';
 import Modal from 'react-native-modalbox';
+import { vw, vh, vmin, vmax } from 'react-native-viewport-units';
 
 import * as courseUtils from '../../util/courses';
 
@@ -28,8 +29,25 @@ export default class CourseModal extends Component {
   }
 
   linkPressed(url) {
-    console.log(url);
-    Linking.openURL(url);
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported)
+          return Linking.openURL(url);
+      }).catch(err => console.error('Couldn\'t open URL.'))
+  }
+
+  prepareLocationString(location) {
+    let lat, lng;
+
+    if (location && location.building && this.props.buildings.hasOwnProperty(location.building)) {
+      let building = this.props.buildings[location.building];
+      lat = building.lat;
+      lng = building.lng;
+    }
+
+    let geo = !lat || !lng ? `${43.6629}${79.3957}` : `${lat}${lng}`;
+
+    return <Text style={styles.linkText} onPress={() => this.linkPressed(geo)}>{location.hall}</Text>;
   }
 
   prepareInstructorsString(instructors) {
@@ -49,17 +67,17 @@ export default class CourseModal extends Component {
 
       if (course.meeting_sections.length > 1) {
         c = course.meeting_sections.map(s => s.code).join(' / ');
-        i = course.meeting_sections.map((s, i) => this.prepareInstructorsString(s.instructors)).reduce((a, b) => <Text>{a}, {b}</Text>);
+        i = course.meeting_sections.map((s, i) => this.prepareInstructorsString(s.instructors)).reduce((a, b) => <Text>{a} / {b}</Text>);
         s = course.meeting_sections.map(s => `${s.enrolment}/${s.size} (${((s.enrolment/s.size) * 100).toFixed(1)}%)`).join(' / ');
         t = course.meeting_sections.map(s => `${courseUtils.formTimeString(s.times[0].start)} - ${courseUtils.formTimeString(s.times[0].end)}`).join(' / ');
-        l = course.meeting_sections.map(s => s.times[0].location).join(' / ');
+        l = course.meeting_sections.map(s => this.prepareLocationString(s.times[0].location)).reduce((a, b) => <Text>{a} / {b}</Text>);
       } else {
         let { code, instructors, enrolment, size, times } = course.meeting_sections[0];
         let { location } = times[0];
         c = code;
         i = this.prepareInstructorsString(instructors);
         s = `${enrolment}/${size} (${((enrolment/size) * 100).toFixed(1)}%)`;
-        l = location;
+        l = this.prepareLocationString(location);
         t = `${courseUtils.formTimeString(times[0].start)} - ${courseUtils.formTimeString(times[0].end)}`;
       }
 
@@ -73,7 +91,7 @@ export default class CourseModal extends Component {
               <Text style={styles.meetingSection}>
                 <Text style={styles.headingText}>Section</Text>{`\n`}{c.trim() || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Time</Text>{`\n`}{t.trim() || '–'}{`\n\n`}
-                <Text style={styles.headingText}>Location</Text>{`\n`}{l.trim() || '–'}{`\n\n`}
+                <Text style={styles.headingText}>Location</Text>{`\n`}{l || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Professor</Text>{`\n`}{i || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Enrolment</Text>{`\n`}{s.trim() || '–'}
               </Text>
@@ -93,18 +111,19 @@ export default class CourseModal extends Component {
 
 const styles = StyleSheet.create({
   modal: {
-    height: 425,
-    width: 310,
+    height: 75*vh,
+    width: 90*vw,
   },
   courseView: {
     paddingHorizontal: 15,
   },
   courseViewContainer: {
-    paddingVertical: 20,
+    paddingTop: 15,
+    paddingBottom: 20,
   },
   courseText: {
     color: 'black',
-    fontSize: 12.5,
+    fontSize: 14,
     lineHeight: 20,
   },
   headingText: {

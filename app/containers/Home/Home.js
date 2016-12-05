@@ -38,7 +38,7 @@ export default class Home extends Component {
   }
 
   render() {
-    if (this.props.data.length === 0) {
+    if (!this.props.data.buildings || !this.props.data.courses) {
       return (
         <View style={{flex: 1}}>
           <Spinner visible={true} size={'large'} color={'rgb(0, 42, 92)'} overlayColor={'#efefef'}/>
@@ -55,7 +55,8 @@ export default class Home extends Component {
         <TabView onChangeTab={({ i, ref }) => this.setState({ activeTab: i })}>
           <View tabLabel='class' style={styles.tab}>
             <CurrentClassList
-              data={this.props.data}
+              courses={this.props.data.courses}
+              buildings={this.props.data.buildings}
               sort={this.state.sort}
               ref={classList => { this.classList = classList; }} />
           </View>

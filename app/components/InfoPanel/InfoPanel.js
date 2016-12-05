@@ -3,7 +3,11 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 
 export default class InfoPanel extends Component {
   linkPressed(url) {
-    Linking.openURL(url);
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported)
+          return Linking.openURL(url);
+      }).catch(err => console.error('Couldn\'t open URL.'))
   }
 
   render() {
