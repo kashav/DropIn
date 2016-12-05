@@ -8,7 +8,8 @@ if __name__ == '__main__':
     with open('courses.json') as f:
         courses = json.loads(f.read())
 
-    building_codes = [b['code'] for b in buildings]
+    building_codes = [building['code'] for building in buildings.values()]
+    building_ids = list(buildings.keys())
 
     for course in courses:
         for meeting_section in course['meeting_sections']:
@@ -19,6 +20,6 @@ if __name__ == '__main__':
                     continue
 
                 time['location'] = dict(hall=time['location'],
-                                        building=buildings[index])
+                                        building=building_ids[index])
 
-    print(json.dumps(courses))
+    print(json.dumps(dict(courses=courses, buildings=buildings)))
