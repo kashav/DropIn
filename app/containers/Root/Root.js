@@ -3,6 +3,8 @@ import { AsyncStorage } from 'react-native';
 
 import Home from '../Home';
 
+const VERSION = '0.1';
+
 export default class Root extends Component {
   state = {
     data: [],
@@ -18,8 +20,9 @@ export default class Root extends Component {
     try {
       let data = JSON.parse(await AsyncStorage.getItem('UofTDropIn:data'));
       let lastUpdated = new Date(await AsyncStorage.getItem('UofTDropIn:lastupdated'));
+      let version = await AsyncStorage.getItem('UofTDropIn:version');
 
-      if (!data || !lastUpdated || lastUpdated.setDate(lastUpdated.getDate() + 7) < (new Date()))
+      if (!data || !version || !lastUpdated || version !== VERSION || lastUpdated.setDate(lastUpdated.getDate() + 7) < (new Date()))
         throw new Error("Data out of date");
 
       this.setState({ data, lastUpdated });
@@ -39,12 +42,17 @@ export default class Root extends Component {
         let lastUpdated = new Date();
         this.setState({ data, lastUpdated });
 
-        AsyncStorage.multiRemove(['UofTDropIn:data', 'UofTDropIn:lastUpdated'], (err) => {
+        AsyncStorage.multiRemove([
+          'UofTDropIn:data',
+          'UofTDropIn:lastUpdated',
+          'UofTDropIn:version',
+        ], (err) => {
           if (err) throw err;
 
           AsyncStorage.multiSet([
             ['UofTDropIn:data', JSON.stringify(data)],
-            ['UofTDropIn:lastupdated', lastUpdated]
+            ['UofTDropIn:lastupdated', lastUpdated],
+            ['UofTDropIn:version', VERSION],
           ], (err) => {
             if (err) throw err;
           });
