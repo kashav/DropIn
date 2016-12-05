@@ -5,6 +5,7 @@ export default class InfoPanel extends Component {
   linkPressed(url) {
     Linking.openURL(url);
   }
+
   render() {
     return (
       <View style={styles.card}>
