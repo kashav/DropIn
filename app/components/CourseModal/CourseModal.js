@@ -56,7 +56,7 @@ export default class CourseModal extends Component {
     return (
       instructors.map((el, i) => (
         <Text key={i} style={styles.linkText} onPress={() => this.linkPressed(`${RMP_QUERY_URL}+${el.split(' ').pop()}`)}>{el}</Text>
-      ))
+      )).reduce((a, b) => <Text>{a}, {b}</Text>);
     );
   }
 
