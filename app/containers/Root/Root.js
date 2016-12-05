@@ -59,12 +59,11 @@ export default class Root extends Component {
             ['UofTDropIn:version', VERSION],
           ], (err) => {
             if (err) throw err;
+            this.setState({ data, lastUpdated });
           });
         });
       })
       .catch(error => this.setState({ error }));
-
-      this.setState({ data, lastUpdated });
   }
 
   render() {

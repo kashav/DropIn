@@ -33,6 +33,8 @@ export default class CourseModal extends Component {
       .then(supported => {
         if (supported)
           return Linking.openURL(url);
+        else
+          console.log('not supported');
       }).catch(err => console.error('Couldn\'t open URL.'))
   }
 
@@ -45,7 +47,7 @@ export default class CourseModal extends Component {
       lng = building.lng;
     }
 
-    let geo = !lat || !lng ? `${43.6629}${79.3957}` : `${lat}${lng}`;
+    let geo = !lat || !lng ? `geo:${43.6629}${79.3957}` : `geo:${lat}${lng}`;
 
     return <Text style={styles.linkText} onPress={() => this.linkPressed(geo)}>{location.hall}</Text>;
   }
@@ -111,7 +113,7 @@ export default class CourseModal extends Component {
 
 const styles = StyleSheet.create({
   modal: {
-    height: 75*vh,
+    maxHeight: 75*vh,
     width: 90*vw,
   },
   courseView: {

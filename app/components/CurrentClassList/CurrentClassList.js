@@ -139,8 +139,15 @@ export default class CurrentClassList extends Component {
 
 const styles = StyleSheet.create({
   noResultsElement: {
-    textAlign: 'center',
-    minHeight: 0
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    borderColor: 'rgba(0,0,0,0.1)',
+    padding: 20,
+    shadowColor: '#ccc',
+    shadowOffset: { width: 2, height: 2, },
+    shadowOpacity: 0.8,
+    shadowRadius: 3,
+    minHeight: 0,
   },
   listView: {
     zIndex: -1,
@@ -149,7 +156,6 @@ const styles = StyleSheet.create({
   listElement: {
     backgroundColor: '#fff',
     padding: 15,
-    minHeight: 70
   },
   listElementText: {
     color: '#000',

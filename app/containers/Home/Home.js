@@ -38,7 +38,7 @@ export default class Home extends Component {
   }
 
   render() {
-    if (!this.props.data.buildings || !this.props.data.courses) {
+    if (!this.props.data || !this.props.data.buildings || !this.props.data.courses) {
       return (
         <View style={{flex: 1}}>
           <Spinner visible={true} size={'large'} color={'rgb(0, 42, 92)'} overlayColor={'#efefef'}/>
