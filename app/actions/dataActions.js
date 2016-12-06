@@ -26,9 +26,7 @@ export function loadInitialState() {
       if (!data || !version || !lastUpdated || version !== VERSION || lastUpdated.setDate(lastUpdated.getDate() + 7) < (new Date()))
         throw new Error("Data out of date");
     } catch(error) {
-      console.log(error);
-      await dispatch(fetchData()).done();
-      return;
+      throw error;
     }
 
     dispatch(setInitialState(data));
@@ -36,13 +34,15 @@ export function loadInitialState() {
 }
 
 export function fetchData() {
-  let data, lastUpdated;
-
   return async function (dispatch) {
+    let data;
+
     await fetch('http://drop-in.kshvmdn.com/data.json')
       .then(response => response.json())
       .then(response => {
-        data = response;
+        let data = response;
+        dispatch(setInitialState(data));
+
         lastUpdated = new Date();
         AsyncStorage.multiRemove([
           'UofTDropIn:data',
@@ -57,7 +57,6 @@ export function fetchData() {
             ['UofTDropIn:version', VERSION],
           ], (err) => {
             if (err) throw err;
-            dispatch(setInitialState(data));
           });
         });
       })

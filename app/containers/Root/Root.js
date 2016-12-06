@@ -23,7 +23,13 @@ export default class Root extends Component {
 
   componentWillMount() {
     store.dispatch(actions.loadUserPosition());
-    store.dispatch(actions.loadInitialState()).done(() => this.setState({ loaded: true }))
+    store.dispatch(actions.loadInitialState())
+      .then(this.done.bind(this))
+      .catch(err => store.dispatch(actions.fetchData()).done(this.done.bind(this)));
+  }
+
+  done() {
+    this.setState({ loaded: true });
   }
 
   render() {
