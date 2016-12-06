@@ -44,21 +44,28 @@ export function sortClasses({ classes, buildings, userPosition, sortIndex }) {
         sorted = classes.sort((a, b) => (a.code > b.code) ? 1 : ((b.code > a.code) ? -1 : 0));
         break;
       case 'LOCATION':
-        let { latitude, longitude } = userPosition.coords;
-        let userCoords = { lat: latitude, lng: longitude };
-        let distFromA, distFromB;
+        let userCoords = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
+        let distances = new Map();
 
         sorted = classes.sort((a, b) => {
+          let distFromA, distFromB;
+
           try {
             let { lat: latA, lng: lngA } = buildings[a.meeting_sections[0].times[0].location.building];
             let { lat: latB, lng: lngB } = buildings[b.meeting_sections[0].times[0].location.building];
-            distFromA = calculateDistance(userPosition, {lat: latA, lng: lngA});
-            distFromB = calculateDistance(userPosition, {lat: latB, lng: lngB});
+
+            let posA = `${latA},${lngA}`;
+            let posB = `${latB},${lngB}`;
+
+            distFromA = distances.has(posA) ? distances.get(posA) : calculateDistance(userCoords, {lat: latA, lng: lngA});
+            distFromB = distances.has(posB) ? distances.get(posB) : calculateDistance(userCoords, {lat: latB, lng: lngB});
+            distances.set(posA, distFromA);
+            distances.set(posB, distFromB);
           } catch(e) {
             return 1;
           }
 
-          return distFromA < distFromB ? 1 : (distFromB < distFromA ? -1 : 0);
+          return distFromA - distFromB;
         });
 
         break;
