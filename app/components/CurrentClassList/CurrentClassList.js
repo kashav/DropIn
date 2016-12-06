@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   },
   listView: {
     zIndex: -1,
-    minHeight: 500,
   },
   listElement: {
     backgroundColor: '#fff',
@@ -96,19 +95,21 @@ export default class CurrentClassList extends Component {
               <Text style={styles.courseName}>{course.name}</Text>
             </Text>{`\n`}
             <Text style={styles.courseMeetingSections}>
-              {course.meeting_sections.map((s, i) => (
-                <Text key={i} style={styles.coureMeetingSection}>
-                  <Text style={styles.courseTime}>
-                    {courseUtils.formTimeString(s.times[0].start)} - {courseUtils.formTimeString(s.times[0].end)}
-                  </Text>&nbsp;·&nbsp;
-                  <Text style={styles.courseLocation}>
-                    {s.times[0].location.hall}
-                  </Text>&nbsp;·&nbsp;
-                  <Text style={styles.enrolment}>
-                    {s.enrolment}/{s.size} {`(${((s.enrolment/s.size) * 100).toFixed(1)}%)`}
-                  </Text>{`\n`}
-                </Text>
-              ))}
+              {course.meeting_sections.map((s, i) => {
+                let hasTime = s.times[0] && s.times[0].start && s.times[0].end;
+                let hasLocation = s.times[0] && s.times[0].location && s.times[0].location.hall;
+                let hasSize = s.enrolment && s.size && s.size !== 9999;
+
+                return (
+                  <Text key={i} style={styles.coureMeetingSection}>
+                    {hasTime && <Text style={styles.courseTime}>{courseUtils.formTimeString(s.times[0].start)} - {courseUtils.formTimeString(s.times[0].end)}</Text>}
+                    {hasTime && hasLocation && <Text>&nbsp;·&nbsp;</Text>}
+                    {hasLocation && <Text style={styles.courseLocation}>{s.times[0].location.hall}</Text>}
+                    {((hasLocation && hasSize) || (hasTime && hasSize)) && <Text>&nbsp;·&nbsp;</Text>}
+                    {hasSize && <Text style={styles.enrolment}>{s.enrolment}/{s.size} {`(${((s.enrolment/s.size) * 100).toFixed(1)}%)`}{`\n`}</Text>}
+                  </Text>
+                );
+              })}
             </Text>
           </Text>
         </TouchableHighlight>
