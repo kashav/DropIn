@@ -13,11 +13,11 @@ export function toggleSort() {
 export function findCurrentCourses({ courses: allCourses, buildings, currentPosition: userPosition }, { sort: sortIndex }) {
   return function (dispatch) {
     let now = new Date();
-    // let currentDay = ALL_DAYS[now.getDay()];
-    // let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
+    let currentDay = ALL_DAYS[now.getDay()];
+    let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
 
-    const TIMES = [{ currentDay: 'WEDNESDAY', currentTime: 46900 }, { currentDay: 'FRIDAY', currentTime: 35340 }, { currentDay: 'THURSDAY', currentTime: 60000 }];
-    let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
+    // const TIMES = [{ currentDay: 'WEDNESDAY', currentTime: 46900 }, { currentDay: 'FRIDAY', currentTime: 35340 }, { currentDay: 'THURSDAY', currentTime: 60000 }];
+    // let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
 
     let classes = JSON.parse(JSON.stringify(allCourses)).map(c => {
       c.meeting_sections = c.meeting_sections.map(s => {
