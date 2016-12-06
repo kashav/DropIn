@@ -1,50 +1,3 @@
-const ALL_DAYS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-
-// const TIMES = [{
-//   'currentDay': 'WEDNESDAY',
-//   'currentTime': 46900
-// }, {
-//   'currentDay': 'FRIDAY',
-//   'currentTime': 35340
-// }, {
-//   'currentDay': 'THURSDAY',
-//   'currentTime': 60000
-// }];
-
-export function findCurrentCourses(allCourses, sortMethod) {
-  let now = new Date();
-
-  let currentDay = ALL_DAYS[now.getDay()];
-  let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
-
-  // let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
-
-  let courses = allCourses.map(c => {
-    c.meeting_sections = c.meeting_sections.map(s => {
-      s.times = s.times.filter(t => t.day === currentDay && currentTime <= t.end && t.start <= currentTime + 1800);
-
-      if (/^(L)\d{4}$/i.test(s.code) && s.times.length > 0)
-        return s;
-    }).filter(s => s);
-
-    if (c.meeting_sections.length > 0)
-      return c;
-  }).filter(c => c);
-
-  courses = sort(courses, sortMethod);
-
-  let coursesObj = {};
-
-  for (course of courses) {
-    // Use courseid + currentDay + currentTime as key for uniqueness, since
-    // if they refresh after short periods of time, the current courses
-    // will likely not have changed.
-    coursesObj[`${course.id}_${currentDay}_${currentTime}`] = course
-  }
-
-  return coursesObj;
-}
-
 export function formTimeString(secondsSinceMidnight) {
   let hour = secondsSinceMidnight / 60 / 60;
   let minute = Math.floor((hour - Math.floor(hour)) * 60);
@@ -56,21 +9,4 @@ export function formTimeString(secondsSinceMidnight) {
     hour -= 12;
 
   return `${hour}:${minute < 10 ? '0' : ''}${minute} ${period}`;
-}
-
-export function sort(courses, sortMethod) {
-  if (sortMethod === 'CODE')
-    return courses.sort((a, b) => (a.code > b.code) ? 1 : ((b.code > a.code) ? -1 : 0));
-
-  if (sortMethod === 'NAME')
-    return courses.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-
-  if (sortMethod === 'TIME')
-    return courses.sort((a, b) => (a.meeting_sections[0].times[0].start > b.meeting_sections[0].times[0].start) ? 1 : ((b.meeting_sections[0].times[0].start > a.meeting_sections[0].times[0].start) ? -1 : 0));
-
-  // TODO
-  if (sortMethod === 'LOCATION')
-    return courses;
-
-  return courses
 }

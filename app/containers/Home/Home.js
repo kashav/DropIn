@@ -1,44 +1,59 @@
 import React, { Component } from 'react';
-import {
-  AsyncStorage,
-  StatusBar,
-  StyleSheet,
-  Text,
-  ToastAndroid,
-  View,
-} from 'react-native';
+import { StatusBar, StyleSheet, ToastAndroid, View } from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { vw, vh, vmin, vmax } from 'react-native-viewport-units';
 
+import * as classActions from '../../actions/classActions';
 import CurrentClassList from '../../components/CurrentClassList';
 import EmptyRoomList from '../../components/EmptyRoomList'
 import ErrorCard from '../../components/ErrorCard';
 import InfoPanel from '../../components/InfoPanel';
 import TabView from '../../components/TabView';
 import Toolbar from '../../components/Toolbar';
+import { SORT_METHODS } from '../../constants';
 
-export default class Home extends Component {
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#efefef',
+  },
+  tab: {
+    flex: 1,
+    padding: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.01)',
+  },
+});
+
+class Home extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      sort: 'CODE',
-      title: 'Drop-In',
-      activeTab: 0,
-    };
+    this.state = { title: 'Drop-In', activeTab: 0 };
   }
 
-  onSortToggle() {
-    let sortTypes = ['CODE', 'TIME', 'LOCATION', 'NAME'];
-    let i = sortTypes.indexOf(this.state.sort);
-    let sort = i + 1 >= sortTypes.length ? sortTypes[0] : sortTypes[i+1];
-    this.classList.resort(sort);
-    ToastAndroid.show(`Sorting by ${sort.toLowerCase()}`, ToastAndroid.SHORT);
-    this.setState({ sort });
+  componentWillMount() {
+    let { classActions, state } = this.props;
+    classActions.findCurrentCourses(state.data, state.classes);
+  }
+
+  toggleSort() {
+    let { classActions, state } = this.props;
+
+    classActions.toggleSort();
+    this.classList.reloadData();
+
+    ToastAndroid.show(
+      `Sorting by ${( (state.classes.sort + 1) === SORT_METHODS.length
+        ? SORT_METHODS[0]
+        : SORT_METHODS[state.classes.sort+1]).toLowerCase()}`,
+      ToastAndroid.SHORT);
   }
 
   render() {
-    if (!this.props.data || !this.props.data.buildings || !this.props.data.courses) {
+    const { state } = this.props;
+
+    if (!state.data || !state.data.buildings || !state.data.courses || !state.classes.current) {
       return (
         <View style={{flex: 1}}>
           <Spinner visible={true} size={'large'} color={'rgb(0, 42, 92)'} overlayColor={'#efefef'}/>
@@ -48,17 +63,17 @@ export default class Home extends Component {
 
     let component;
 
-    if (this.props.error !== null) {
+    if (state.error !== null) {
       component = <ErrorCard />;
     } else {
       component = (
         <TabView onChangeTab={({ i, ref }) => this.setState({ activeTab: i })}>
           <View tabLabel='class' style={styles.tab}>
             <CurrentClassList
-              courses={this.props.data.courses}
-              buildings={this.props.data.buildings}
-              sort={this.state.sort}
-              ref={classList => { this.classList = classList; }} />
+              data={state.data}
+              classes={state.classes}
+              ref={classList => { this.classList = classList; }}
+              {...this.props.classActions} />
           </View>
           <View tabLabel='lock-open' style={styles.tab}>
             <EmptyRoomList />
@@ -73,21 +88,14 @@ export default class Home extends Component {
     return (
       <View style={styles.container}>
         <StatusBar />
-        <Toolbar title={this.state.title} showActions={!this.props.error && this.state.activeTab === 0} onSortToggle={this.onSortToggle.bind(this)} />
+        <Toolbar title={this.state.title} showActions={!this.props.error && this.state.activeTab === 0} onToggleSort={() => this.toggleSort()} />
         {component}
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#efefef',
-  },
-  tab: {
-    flex: 1,
-    padding: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.01)',
-  },
-});
+export default connect(
+  state => ({ state }),
+  dispatch => ({ classActions: bindActionCreators(classActions, dispatch) })
+)(Home);

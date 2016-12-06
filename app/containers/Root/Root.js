@@ -1,72 +1,39 @@
 import React, { Component } from 'react';
-import { AsyncStorage } from 'react-native';
+import { View } from 'react-native';
+import { applyMiddleware, createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
+import createLogger from 'redux-logger';
+import thunk from 'redux-thunk';
+import Spinner from 'react-native-loading-spinner-overlay';
 
+import * as actions from '../../actions/dataActions';
+import * as reducers from '../../reducers';
 import Home from '../Home';
 
-const VERSION = '0.1';
+const logger = createLogger();
+const createStoreWithMiddleware = applyMiddleware(thunk, logger)(createStore);
+const reducer = combineReducers(reducers);
+const store = createStoreWithMiddleware(reducer);
 
 export default class Root extends Component {
-  state = {
-    data: {},
-    lastUpdated: null,
-    error: null,
-  };
-
-  componentDidMount() {
-    this.loadInitialState().done();
+  constructor() {
+    super();
+    this.state = { loaded: false };
   }
 
-  loadInitialState = async () => {
-    let data, lastUpdated, version;
-
-    try {
-      data = JSON.parse(await AsyncStorage.getItem('UofTDropIn:data'));
-      lastUpdated = new Date(await AsyncStorage.getItem('UofTDropIn:lastupdated'));
-      version = await AsyncStorage.getItem('UofTDropIn:version');
-
-      if (!data || !version || !lastUpdated || version !== VERSION || lastUpdated.setDate(lastUpdated.getDate() + 7) < (new Date()))
-        throw new Error("Data out of date");
-    } catch(error) {
-      return this.fetchCourseData();
-    }
-
-    this.setState({ data, lastUpdated });
-  }
-
-  fetchCourseData() {
-    console.log('Fetching data');
-
-    let data, lastUpdated;
-
-    // TODO - refactor this to use an API or something. Right now I'm limiting
-    // course data to only UTSG and the _current_ term (since RN limits database
-    // storage to 6 MB on Android)
-    fetch('http://drop-in.kshvmdn.com/data.json')
-      .then(response => response.json())
-      .then(response => {
-        data = response;
-        lastUpdated = new Date();
-        AsyncStorage.multiRemove([
-          'UofTDropIn:data',
-          'UofTDropIn:lastUpdated',
-          'UofTDropIn:version',
-        ], (err) => {
-          if (err) throw err;
-
-          AsyncStorage.multiSet([
-            ['UofTDropIn:data', JSON.stringify(data)],
-            ['UofTDropIn:lastupdated', lastUpdated],
-            ['UofTDropIn:version', VERSION],
-          ], (err) => {
-            if (err) throw err;
-            this.setState({ data, lastUpdated });
-          });
-        });
-      })
-      .catch(error => this.setState({ error }));
+  componentWillMount() {
+    store.dispatch(actions.loadUserPosition());
+    store.dispatch(actions.loadInitialState()).done(() => this.setState({ loaded: true }))
   }
 
   render() {
-    return <Home data={this.state.data} error={this.state.error}/>
+    if (!this.state.loaded)
+      return <View style={{flex: 1}}><Spinner visible={true} size={'large'} color={'rgb(0, 42, 92)'} overlayColor={'#efefef'}/></View>;
+
+    return (
+      <Provider store={store}>
+        <Home />
+      </Provider>
+    );
   }
 }

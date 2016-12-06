@@ -13,7 +13,7 @@ import * as courseUtils from '../../util/courses';
 
 const RMP_QUERY_URL = 'https://www.ratemyprofessors.com/search.jsp?query=university+of+toronto';
 
-export default class CourseModal extends Component {
+export default class ClassModal extends Component {
   constructor(props) {
     super(props);
 
@@ -29,6 +29,8 @@ export default class CourseModal extends Component {
   }
 
   linkPressed(url) {
+    console.log(url);
+
     Linking.canOpenURL(url)
       .then(supported => {
         if (supported)
@@ -53,10 +55,15 @@ export default class CourseModal extends Component {
   }
 
   prepareInstructorsString(instructors) {
+    if (instructors.length === 0)
+      return null;
+
     return (
-      instructors.map((el, i) => (
-        <Text key={i} style={styles.linkText} onPress={() => this.linkPressed(`${RMP_QUERY_URL}+${el.split(' ').pop()}`)}>{el}</Text>
-      )).reduce((a, b) => <Text>{a}, {b}</Text>);
+      <Text>
+        {instructors.map((el, i) => (
+          <Text key={i} style={styles.linkText} onPress={() => this.linkPressed(`${RMP_QUERY_URL}+${el.split(' ').pop()}`)}>{el}</Text>
+        )).reduce((a, b) => <Text>{a || '–'}, {b || '–'}</Text>)}
+      </Text>
     );
   }
 
@@ -69,17 +76,17 @@ export default class CourseModal extends Component {
 
       if (course.meeting_sections.length > 1) {
         c = course.meeting_sections.map(s => s.code).join(' / ');
-        i = course.meeting_sections.map((s, i) => this.prepareInstructorsString(s.instructors)).reduce((a, b) => <Text>{a} / {b}</Text>);
+        i = course.meeting_sections.map((s, i) => this.prepareInstructorsString(s.instructors)).reduce((a, b) => <Text>{a || '–'} / {b || '–'}</Text>);
         s = course.meeting_sections.map(s => `${s.enrolment}/${s.size} (${((s.enrolment/s.size) * 100).toFixed(1)}%)`).join(' / ');
         t = course.meeting_sections.map(s => `${courseUtils.formTimeString(s.times[0].start)} - ${courseUtils.formTimeString(s.times[0].end)}`).join(' / ');
-        l = course.meeting_sections.map(s => this.prepareLocationString(s.times[0].location)).reduce((a, b) => <Text>{a} / {b}</Text>);
+        l = course.meeting_sections.map(s => this.prepareLocationString(s.times[0].location)).reduce((a, b) => <Text>{a || '–'} / {b || '–'}</Text>);
       } else {
         let { code, instructors, enrolment, size, times } = course.meeting_sections[0];
         let { location } = times[0];
         c = code;
-        i = this.prepareInstructorsString(instructors);
+        i = this.prepareInstructorsString(instructors) || '–';
         s = `${enrolment}/${size} (${((enrolment/size) * 100).toFixed(1)}%)`;
-        l = this.prepareLocationString(location);
+        l = this.prepareLocationString(location) || '–';
         t = `${courseUtils.formTimeString(times[0].start)} - ${courseUtils.formTimeString(times[0].end)}`;
       }
 
@@ -113,7 +120,7 @@ export default class CourseModal extends Component {
 
 const styles = StyleSheet.create({
   modal: {
-    maxHeight: 75*vh,
+    maxHeight: 60*vh,
     width: 90*vw,
   },
   courseView: {

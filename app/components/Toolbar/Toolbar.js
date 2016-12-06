@@ -11,7 +11,7 @@ export default class Toolbar extends Component {
   onActionSelected(position) {
     switch(position) {
       case 0:
-        this.props.onSortToggle();
+        this.props.onToggleSort();
         break;
     }
   }
