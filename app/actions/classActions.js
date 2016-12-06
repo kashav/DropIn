@@ -44,7 +44,9 @@ export function sortClasses({ classes, buildings, userPosition, sortIndex }) {
         sorted = classes.sort((a, b) => (a.code > b.code) ? 1 : ((b.code > a.code) ? -1 : 0));
         break;
       case 'LOCATION':
-        let userCoords = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
+        let userCoords = userPosition
+          ? { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude }
+          : { lat: 43.6629, lng: -79.3957 };
         let distances = new Map();
 
         sorted = classes.sort((a, b) => {

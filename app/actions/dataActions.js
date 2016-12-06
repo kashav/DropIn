@@ -26,7 +26,8 @@ export function loadInitialState() {
       if (!data || !version || !lastUpdated || version !== VERSION || lastUpdated.setDate(lastUpdated.getDate() + 7) < (new Date()))
         throw new Error("Data out of date");
     } catch(error) {
-      dispatch(fetchData()).done();
+      console.log(error);
+      await dispatch(fetchData()).done();
       return;
     }
 
@@ -37,8 +38,8 @@ export function loadInitialState() {
 export function fetchData() {
   let data, lastUpdated;
 
-  return function (dispatch) {
-    fetch('http://drop-in.kshvmdn.com/data.json')
+  return async function (dispatch) {
+    await fetch('http://drop-in.kshvmdn.com/data.json')
       .then(response => response.json())
       .then(response => {
         data = response;
@@ -68,8 +69,7 @@ export function loadUserPosition() {
   return function (dispatch) {
     navigator.geolocation.getCurrentPosition(
       (position) => dispatch(setUserPosition(position)),
-      (error) => console.error(error),
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+      (error) => console.error(error)
     );
   }
 }

@@ -56,29 +56,31 @@ export default class CurrentClassList extends Component {
   constructor(props) {
     super(props);
 
-    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
     this.state = {
+      currentData: this.props.classes.current,
       dataSource: ds.cloneWithRows(Object.keys(this.props.classes.current)),
       refreshing: false,
     };
   }
 
   reloadData() {
-    let { dataSource: ds } = this.state;
-
-    this.setState({ refreshing: true, dataSource: ds.cloneWithRows([]) }, () => {
+    this.setState({ refreshing: true }, () => {
       this.props.findCurrentCourses(this.props.data, this.props.classes);
 
       setTimeout(() => {
-        ds = this.state.dataSource.cloneWithRows(Object.keys(this.props.classes.current) || []);
-        this.setState({ dataSource: ds, refreshing: false });
-      }, 1000)
+        this.setState({
+          currentData: this.props.classes.current,
+          dataSource: this.state.dataSource.cloneWithRows(Object.keys(this.props.classes.current)),
+          refreshing: false
+        });
+      }, 2000)
     });
   }
 
   renderRow(rowData, sectionId, rowId, highlightRow) {
-    let course = this.props.classes.current[rowData];
+    let course = this.state.currentData[rowData];
 
     return (
       <View style={styles.listElement}>
@@ -148,7 +150,7 @@ export default class CurrentClassList extends Component {
     }
 
     return (
-      <View>
+      <View style={styles.container}>
         <ClassModal ref={modal => { this.modal = modal; }} buildings={this.props.data.buildings}/>
         <ListView
           dataSource={this.state.dataSource}

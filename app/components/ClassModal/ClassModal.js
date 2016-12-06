@@ -49,7 +49,7 @@ export default class ClassModal extends Component {
       lng = building.lng;
     }
 
-    let geo = !lat || !lng ? `geo:${43.6629},${79.3957}` : `geo:${lat},${lng}`;
+    let geo = !lat || !lng ? `geo:${43.6629},${-79.3957}` : `geo:${lat},${lng}`;
 
     return <Text style={styles.linkText} onPress={() => this.linkPressed(geo)}>{location.hall}</Text>;
   }
