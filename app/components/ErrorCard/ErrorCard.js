@@ -4,8 +4,8 @@ import { vw, vh, vmin, vmax } from 'react-native-viewport-units';
 
 export default function ErrorCard() {
   return (
-      <View style={[styles.errorView]}>
-        <View style={[styles.errorCard]}>
+      <View style={[styles.errorContainer]}>
+        <View style={[styles.errorView]}>
           <Text style={styles.errorText}>
             <Text style={styles.errorTextBig}>Oops!</Text>{'\n\n\n'}An unexpected error has occurred. Try again later.
           </Text>
@@ -15,7 +15,7 @@ export default function ErrorCard() {
 }
 
 const styles = StyleSheet.create({
-  errorView: {
+  errorContainer: {
     flex: 1,
     padding: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.01)',
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
+    borderTopWidth: 0,
     backgroundColor: '#fff',
     borderColor: 'rgba(0,0,0,0.1)',
     padding: 15,

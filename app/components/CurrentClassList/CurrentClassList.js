@@ -13,45 +13,6 @@ import {
 import ClassModal from '../ClassModal';
 import * as courseUtils from '../../util/courses';
 
-const styles = StyleSheet.create({
-  noResultsElement: {
-    borderWidth: 1,
-    backgroundColor: '#fff',
-    borderColor: 'rgba(0,0,0,0.1)',
-    padding: 20,
-    shadowColor: '#ccc',
-    shadowOffset: { width: 2, height: 2, },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
-    minHeight: 0,
-  },
-  listView: {
-    zIndex: -1,
-  },
-  listElement: {
-    backgroundColor: '#fff',
-    padding: 15,
-  },
-  listElementText: {
-    color: '#000',
-  },
-  courseMain: {
-    lineHeight: 20,
-    fontSize: 13,
-  },
-  courseCode: {
-    fontWeight: '500'
-  },
-  courseName: {},
-  courseMeetingSections: {
-    lineHeight: 25,
-    fontFamily: 'sans-serif-light',
-    fontSize: 12.5,
-  },
-  courseTime: {
-  },
-});
-
 export default class CurrentClassList extends Component {
   constructor(props) {
     super(props);
@@ -59,8 +20,8 @@ export default class CurrentClassList extends Component {
     let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
     this.state = {
-      currentData: this.props.classes.current,
-      dataSource: ds.cloneWithRows(Object.keys(this.props.classes.current)),
+      currentData: props.classes.current,
+      dataSource: ds.cloneWithRows(Object.keys(props.classes.current)),
       refreshing: false,
     };
   }
@@ -125,23 +86,24 @@ export default class CurrentClassList extends Component {
         key={`${sectionId}-${rowId}`}
         style={{
           height: StyleSheet.hairlineWidth + (adjacentRowHighlighted ? 0.25 : 0),
-          backgroundColor: adjacentRowHighlighted ? 'rgb(0, 42, 92)' : '#8e8e8e',
+          backgroundColor: adjacentRowHighlighted ? 'rgb(0, 42, 92)' : 'rgba(0, 0, 0, 0.3)',
         }}
       />
     );
   }
 
   render() {
+    let refreshControl = (
+      <RefreshControl
+        refreshing={this.state.refreshing}
+        onRefresh={this.reloadData.bind(this)}
+        color={'rgb(0, 42, 92)'}
+      />
+    );
+
     if (!this.props.classes.current || Object.keys(this.props.classes.current).length === 0) {
       return (
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this.reloadData.bind(this)}
-              color={'rgb(0, 42, 92)'}
-            />
-          }>
+        <ScrollView style={styles.container} refreshControl={refreshControl}>
           <Text style={[styles.listElement, styles.noResultsElement]}>
             <Text style={styles.listElementText}>No classes going on right now! Check back later.</Text>
           </Text>
@@ -151,21 +113,56 @@ export default class CurrentClassList extends Component {
 
     return (
       <View style={styles.container}>
-        <ClassModal ref={modal => { this.modal = modal; }} buildings={this.props.data.buildings}/>
         <ListView
           dataSource={this.state.dataSource}
           enableEmptySections={true}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this.reloadData.bind(this)}
-              color={'rgb(0, 42, 92)'}
-            />
-          }
+          refreshControl={refreshControl}
           renderRow={this.renderRow.bind(this)}
           renderSeparator={this.renderSeparator.bind(this)}
           style={styles.listView} />
+          <ClassModal ref={modal => { this.modal = modal; }} buildings={this.props.data.buildings}/>
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  noResultsElement: {
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    borderColor: 'rgba(0,0,0,0.1)',
+    padding: 20,
+    shadowColor: '#ccc',
+    shadowOffset: { width: 2, height: 2, },
+    shadowOpacity: 0.8,
+    shadowRadius: 3,
+    minHeight: 0,
+  },
+  container: {
+  },
+  listView: {
+    zIndex: -1,
+  },
+  listElement: {
+    backgroundColor: '#fff',
+    padding: 15,
+  },
+  listElementText: {
+    color: '#000',
+  },
+  courseMain: {
+    lineHeight: 20,
+    fontSize: 13,
+  },
+  courseCode: {
+    fontWeight: '500'
+  },
+  courseName: {},
+  courseMeetingSections: {
+    lineHeight: 25,
+    fontFamily: 'sans-serif-light',
+    fontSize: 12.5,
+  },
+  courseTime: {
+  },
+});

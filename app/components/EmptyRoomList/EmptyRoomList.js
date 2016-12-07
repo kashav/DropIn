@@ -12,7 +12,7 @@ import * as courseUtils from '../../util/courses';
 export default class EmptyRoomList extends Component {
   render() {
     return (
-      <View style={styles.card}>
+      <View style={styles.container}>
         <Text style={styles.text}>Coming soon...</Text>
       </View>
     );
@@ -20,15 +20,12 @@ export default class EmptyRoomList extends Component {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
+  container: {
     backgroundColor: '#fff',
+    borderWidth: 0,
+    borderBottomWidth: 1,
     borderColor: 'rgba(0,0,0,0.1)',
     padding: 20,
-    shadowColor: '#ccc',
-    shadowOffset: { width: 2, height: 2, },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
   },
   text: {
     color: '#000',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet } from 'react-native';
+import { Modal, StyleSheet, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ToolbarAndroid from 'ToolbarAndroid';
 
@@ -11,13 +11,22 @@ export default class Toolbar extends Component {
   onActionSelected(position) {
     switch(position) {
       case 0:
-        this.props.onToggleSort();
+        if (this.props.allowActions)
+          this.props.onTabAction();
+
+        break;
+      case 1:
+        this.props.showInfoModal();
         break;
     }
   }
 
   render() {
-    let actions = this.props.showActions ? [{ title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always' }] : [];
+    let actions = [
+      { title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always', iconColor: this.props.allowActions ? '#fff' : '#888' },
+      { title: 'Info', iconName: 'info-outline', iconSize: 20, show: 'always' }
+    ];
+
     return (
       <Icon.ToolbarAndroid
         actions={actions}

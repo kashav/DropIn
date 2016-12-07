@@ -9,22 +9,10 @@ import * as classActions from '../../actions/classActions';
 import CurrentClassList from '../../components/CurrentClassList';
 import EmptyRoomList from '../../components/EmptyRoomList'
 import ErrorCard from '../../components/ErrorCard';
-import InfoPanel from '../../components/InfoPanel';
+import InfoModal from '../../components/InfoModal';
 import TabView from '../../components/TabView';
 import Toolbar from '../../components/Toolbar';
 import { SORT_METHODS } from '../../constants';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#efefef',
-  },
-  tab: {
-    flex: 1,
-    padding: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.01)',
-  },
-});
 
 class Home extends Component {
   constructor(props) {
@@ -40,14 +28,18 @@ class Home extends Component {
   toggleSort() {
     let { classActions, state } = this.props;
 
-    classActions.toggleSort();
-    this.classList.reloadData();
-
     ToastAndroid.show(
       `Sorting by ${( (state.classes.sort + 1) === SORT_METHODS.length
         ? SORT_METHODS[0]
         : SORT_METHODS[state.classes.sort+1]).toLowerCase()}`,
       ToastAndroid.SHORT);
+
+    classActions.toggleSort();
+    this.classList.reloadData();
+  }
+
+  showInfoModal() {
+    this.infoModal.setModalVisible(true);
   }
 
   render() {
@@ -68,18 +60,15 @@ class Home extends Component {
     } else {
       component = (
         <TabView onChangeTab={({ i, ref }) => this.setState({ activeTab: i })}>
-          <View tabLabel='class' style={styles.tab}>
+          <View tabLabel='school' style={styles.tab}>
             <CurrentClassList
               data={state.data}
               classes={state.classes}
               ref={classList => { this.classList = classList; }}
               {...this.props.classActions} />
           </View>
-          <View tabLabel='lock-open' style={styles.tab}>
+          <View tabLabel='room' style={styles.tab}>
             <EmptyRoomList />
-          </View>
-          <View tabLabel='info-outline' style={styles.tab}>
-            <InfoPanel />
           </View>
         </TabView>
       );
@@ -87,8 +76,13 @@ class Home extends Component {
 
     return (
       <View style={styles.container}>
+        <InfoModal ref={modal => { this.infoModal = modal; }}/>
         <StatusBar />
-        <Toolbar title={this.state.title} showActions={!this.props.error && this.state.activeTab === 0} onToggleSort={() => this.toggleSort()} />
+        <Toolbar
+          title={this.state.title}
+          allowActions={!this.props.error}
+          onTabAction={() => this.state.activeTab === 0 ? this.toggleSort() : console.log('action invoked')}
+          showInfoModal={this.showInfoModal.bind(this)} />
         {component}
       </View>
     );
@@ -99,3 +93,15 @@ export default connect(
   state => ({ state }),
   dispatch => ({ classActions: bindActionCreators(classActions, dispatch) })
 )(Home);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  tab: {
+    flex: 1,
+    padding: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.01)',
+  },
+});

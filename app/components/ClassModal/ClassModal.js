@@ -29,14 +29,9 @@ export default class ClassModal extends Component {
   }
 
   linkPressed(url) {
-    console.log(url);
-
     Linking.canOpenURL(url)
       .then(supported => {
-        if (supported)
-          return Linking.openURL(url);
-        else
-          console.log('not supported');
+        if (supported) return Linking.openURL(url);
       }).catch(err => console.error('Couldn\'t open URL.'))
   }
 
@@ -51,7 +46,7 @@ export default class ClassModal extends Component {
 
     let geo = !lat || !lng ? `geo:${43.6629},${-79.3957}` : `geo:${lat},${lng}`;
 
-    return <Text style={styles.linkText} onPress={() => this.linkPressed(geo)}>{location.hall}</Text>;
+    return <Text style={styles.linkText} onPress={this.linkPressed.bind(this, geo)}>{location.hall}</Text>;
   }
 
   prepareInstructorsString(instructors) {
@@ -61,7 +56,7 @@ export default class ClassModal extends Component {
     return (
       <Text>
         {instructors.map((el, i) => (
-          <Text key={i} style={styles.linkText} onPress={() => this.linkPressed(`${RMP_QUERY_URL}+${el.split(' ').pop()}`)}>{el}</Text>
+          <Text key={i} style={styles.linkText} onPress={this.linkPressed.bind(this, `${RMP_QUERY_URL}+${el.split(' ').pop()}`)}>{el}</Text>
         )).reduce((a, b) => <Text>{a || '–'}, {b || '–'}</Text>)}
       </Text>
     );
@@ -94,9 +89,9 @@ export default class ClassModal extends Component {
         <ScrollView style={styles.courseView}>
           <View style={styles.courseViewContainer}>
             <Text style={styles.courseText}>
-              <Text style={styles.headingText}>Course</Text>{`\n`}{course.code}{`\n\n`}
-              <Text style={styles.headingText}>Title</Text>{`\n`}{course.name}{`\n\n`}
-              <Text style={styles.headingText}>Description</Text>{`\n`}{course.description}{`\n\n`}
+              <Text style={styles.headingText}>Course</Text>{`\n`}{course.code || '–'}{`\n\n`}
+              <Text style={styles.headingText}>Title</Text>{`\n`}{course.name || '–'}{`\n\n`}
+              <Text style={styles.headingText}>Description</Text>{`\n`}{course.description || '–'}{`\n\n`}
               <Text style={styles.meetingSection}>
                 <Text style={styles.headingText}>Section</Text>{`\n`}{c.trim() || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Time</Text>{`\n`}{t.trim() || '–'}{`\n\n`}
