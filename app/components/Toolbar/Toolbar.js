@@ -31,8 +31,7 @@ export default class Toolbar extends Component {
         onActionSelected={this.onActionSelected.bind(this)}
         style={styles.toolbar}
         title={this.props.title || 'Drop-In'}
-        titleColor={'#fff'}
-      />
+        titleColor={'#fff'} />
     );
   }
 }

@@ -7,9 +7,9 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import * as dataActions from '../../actions/dataActions';
 import * as classActions from '../../actions/classActions';
 import * as optionActions from '../../actions/optionActions';
+
 import CurrentClassList from '../../components/CurrentClassList';
 import EmptyRoomList from '../../components/EmptyRoomList'
-import ErrorCard from '../../components/ErrorCard';
 import InfoModal from '../../components/InfoModal';
 import OptionsTab from '../../components/OptionsTab';
 import TabView from '../../components/TabView';

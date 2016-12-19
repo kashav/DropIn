@@ -44,8 +44,7 @@ export default class CurrentClassList extends Component {
             this.modal.open(course);
             highlightRow(sectionId, rowId);
           }}
-          underlayColor={'#fff'}
-        >
+          underlayColor={'#fff'}>
           <Text style={styles.listElementText}>
             <Text style={styles.courseMain}>
               <Text style={styles.courseCode}>{course.code}: </Text>
@@ -133,8 +132,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     minHeight: 0,
   },
-  container: {
-  },
+  container: {},
   listView: {
     zIndex: -1,
   },
@@ -158,6 +156,5 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif-light',
     fontSize: 12.5,
   },
-  courseTime: {
-  },
+  courseTime: {},
 });

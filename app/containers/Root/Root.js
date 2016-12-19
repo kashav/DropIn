@@ -8,6 +8,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import * as dataActions from '../../actions/dataActions';
 import * as reducers from '../../reducers';
+
 import Home from '../Home';
 
 const logger = createLogger({ predicate: (getState, action) => __DEV__ });
