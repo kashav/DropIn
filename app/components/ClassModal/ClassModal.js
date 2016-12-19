@@ -35,18 +35,18 @@ export default class ClassModal extends Component {
       }).catch(err => console.error('Couldn\'t open URL.'))
   }
 
-  prepareLocationString(location) {
+  normalizeText(text) {
+    return text.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/<(\w)+>|<\/(\w)+>/g, '');
+  }
+
+  prepareLocationString(room, location) {
     let lat, lng;
 
-    if (location && location.building && this.props.buildings.hasOwnProperty(location.building)) {
-      let building = this.props.buildings[location.building];
-      lat = building.lat;
-      lng = building.lng;
-    }
+    let geo = (location && location.lat && location.lng)
+      ? `geo:${location.lat},${location.lng}`
+      : `geo:${42.6629},${-79.3957}`;
 
-    let geo = !lat || !lng ? `geo:${43.6629},${-79.3957}` : `geo:${lat},${lng}`;
-
-    return <Text style={styles.linkText} onPress={this.linkPressed.bind(this, geo)}>{location.hall}</Text>;
+    return <Text style={styles.linkText} onPress={this.linkPressed.bind(this, geo)}>{room}</Text>;
   }
 
   prepareInstructorsString(instructors) {
@@ -56,7 +56,7 @@ export default class ClassModal extends Component {
     return (
       <Text>
         {instructors.map((el, i) => (
-          <Text key={i} style={styles.linkText} onPress={this.linkPressed.bind(this, `${RMP_QUERY_URL}+${el.split(' ').pop()}`)}>{el}</Text>
+          <Text key={i} style={styles.linkText} onPress={this.linkPressed.bind(this, `${RMP_QUERY_URL}+${el.lastName}`)}>{el.firstName}. {el.lastName}</Text>
         )).reduce((a, b) => <Text>{a || '–'}, {b || '–'}</Text>)}
       </Text>
     );
@@ -67,22 +67,22 @@ export default class ClassModal extends Component {
     let courseComponent;
 
     if (course) {
-      let c, i, s, l, t;
+      let c, i, e, l, t;
 
-      if (course.meeting_sections.length > 1) {
-        c = course.meeting_sections.map(s => s.code).join(' / ');
-        i = course.meeting_sections.map((s, i) => this.prepareInstructorsString(s.instructors)).reduce((a, b) => <Text>{a || '–'} / {b || '–'}</Text>);
-        s = course.meeting_sections.map(s => `${s.enrolment}/${s.size} (${((s.enrolment/s.size) * 100).toFixed(1)}%)`).join(' / ');
-        t = course.meeting_sections.map(s => `${courseUtils.formTimeString(s.times[0].start)} - ${courseUtils.formTimeString(s.times[0].end)}`).join(' / ');
-        l = course.meeting_sections.map(s => this.prepareLocationString(s.times[0].location)).reduce((a, b) => <Text>{a || '–'} / {b || '–'}</Text>);
+      if (course.meetings.length > 1) {
+        c = course.meetings.map(m => `${m.teachingMethod}${m.sectionNumber}`).join(' / ');
+        i = course.meetings.map((m, i) => this.prepareInstructorsString(m.instructors)).reduce((a, b) => <Text>{a || '–'} / {b || '–'}</Text>);
+        e = course.meetings.map(m => `${m.actualEnrolment}/${m.enrollmentCapacity}  (${((m.actualEnrolment/m.enrollmentCapacity) * 100).toFixed(1)}%)`).join(' / ');
+        t = course.meetings.map(m => `${courseUtils.formTimeString(m.schedule[0].meetingStartTime)} - ${courseUtils.formTimeString(m.schedule[0].meetingEndTime)}`).join(' / ');
+        l = course.meetings.map(m => this.prepareLocationString(m.schedule[0].assignedRoom, m.schedule[0].meetingLocation)).reduce((a, b) => <Text>{a || '–'} / {b || '–'}</Text>);
       } else {
-        let { code, instructors, enrolment, size, times } = course.meeting_sections[0];
-        let { location } = times[0];
-        c = code;
+        let { teachingMethod, sectionNumber, instructors, actualEnrolment, enrollmentCapacity, schedule } = course.meetings[0];
+        let { meetingLocation, assignedRoom } = schedule[0];
+        c = `${teachingMethod}${sectionNumber}`;
         i = this.prepareInstructorsString(instructors) || '–';
-        s = `${enrolment}/${size} (${((enrolment/size) * 100).toFixed(1)}%)`;
-        l = this.prepareLocationString(location) || '–';
-        t = `${courseUtils.formTimeString(times[0].start)} - ${courseUtils.formTimeString(times[0].end)}`;
+        e = `${actualEnrolment}/${enrollmentCapacity} (${((actualEnrolment/enrollmentCapacity) * 100).toFixed(1)}%)`;
+        l = this.prepareLocationString(assignedRoom, meetingLocation) || '–';
+        t = `${courseUtils.formTimeString(schedule[0].meetingStartTime)} - ${courseUtils.formTimeString(schedule[0].meetingEndTime)}`;
       }
 
       courseComponent = (
@@ -90,14 +90,14 @@ export default class ClassModal extends Component {
           <View style={styles.courseViewContainer}>
             <Text style={styles.courseText}>
               <Text style={styles.headingText}>Course</Text>{`\n`}{course.code || '–'}{`\n\n`}
-              <Text style={styles.headingText}>Title</Text>{`\n`}{course.name || '–'}{`\n\n`}
-              <Text style={styles.headingText}>Description</Text>{`\n`}{course.description || '–'}{`\n\n`}
+              <Text style={styles.headingText}>Title</Text>{`\n`}{course.courseTitle || '–'}{`\n\n`}
+              <Text style={styles.headingText}>Description</Text>{`\n`}{this.normalizeText(course.courseDescription) || '–'}{`\n\n`}
               <Text style={styles.meetingSection}>
                 <Text style={styles.headingText}>Section</Text>{`\n`}{c.trim() || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Time</Text>{`\n`}{t.trim() || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Location</Text>{`\n`}{l || '–'}{`\n\n`}
                 <Text style={styles.headingText}>Professor</Text>{`\n`}{i || '–'}{`\n\n`}
-                <Text style={styles.headingText}>Enrolment</Text>{`\n`}{s.trim() || '–'}
+                <Text style={styles.headingText}>Enrolment</Text>{`\n`}{e.trim() || '–'}
               </Text>
             </Text>
           </View>

@@ -46,12 +46,11 @@ export default class InfoModal extends Component {
               <TouchableWithoutFeedback>
                 <View style={styles.innerContainer}>
                   <Text style={styles.text}>
-                    <Text style={styles.heading}>Help & feedback{`\n`}</Text>
+                    <Text style={styles.heading}>Help & Feedback</Text>{`\n\n`}
                     <Text style={styles.body}>
-                      <Text style={styles.name}>Drop-In v{VERSION}. Powered by <Text style={[styles.highlight, styles.link]} onPress={this.linkPressed.bind(this, 'https://cobalt.qas.im')}>Cobalt</Text>.{`\n\n`}</Text>
                       <Text>Built by <Text style={styles.link} onPress={this.linkPressed.bind(this, 'http://kshvmdn.com')}>Kashav Madan</Text>.</Text>{`\n\n`}
-                      Find a bug or have a feature request? File an issue on <Text style={styles.link} onPress={this.linkPressed.bind(this, 'https://github.com/kshvmdn/dropin')}>GitHub</Text>.{`\n\n`}
-                      <Text style={styles.disclaimer}>This app is in no way affiliated with the University of Toronto.</Text>
+                      <Text>Bug or feature request? <Text style={styles.link} onPress={this.linkPressed.bind(this, `mailto:kshvmdn@gmail.com?subject=Drop-In v${VERSION} – Bug/Feature request`)}>Let us know!</Text></Text>{`\n\n`}
+                      <Text style={styles.disclaimer}>This application is in no way affiliated with the University of Toronto.</Text>
                     </Text>
                   </Text>
 
@@ -61,7 +60,7 @@ export default class InfoModal extends Component {
                     onShowUnderlay={this.onButtonHighlight.bind(this)}
                     style={styles.button}
                     underlayColor="#a9d9d4">
-                      <Text style={[styles.buttonText]}>CLOSE</Text>
+                    <Text style={[styles.buttonText]}>CLOSE</Text>
                   </TouchableHighlight>
                 </View>
               </TouchableWithoutFeedback>
@@ -92,13 +91,13 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: 'sans-serif-medium',
-    fontSize: 14.5,
+    fontSize: 16,
   },
   body: {
-    fontSize: 12.5,
+    fontSize: 14,
   },
   name: {
-    fontSize: 10,
+    fontSize: 13,
     fontFamily: 'monospace',
     lineHeight: 20,
   },
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    fontSize: 11,
+    fontSize: 13,
     textAlign: 'right',
     color: 'rgb(0, 42, 92)',
     margin: 5,

@@ -11,9 +11,7 @@ export default class Toolbar extends Component {
   onActionSelected(position) {
     switch(position) {
       case 0:
-        if (this.props.allowActions)
-          this.props.onTabAction();
-
+        this.props.reload();
         break;
       case 1:
         this.props.showInfoModal();
@@ -23,8 +21,8 @@ export default class Toolbar extends Component {
 
   render() {
     let actions = [
-      { title: 'Sort', iconName: 'sort', iconSize: 20, show: 'always', iconColor: this.props.allowActions ? '#fff' : '#888' },
-      { title: 'Info', iconName: 'info-outline', iconSize: 20, show: 'always' }
+      { title: 'Reload', iconName: 'refresh', iconSize: 25, show: 'always' },
+      { title: 'Info', iconName: 'info-outline', iconSize: 25, show: 'always' }
     ];
 
     return (

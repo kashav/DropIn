@@ -2,7 +2,6 @@ import * as types from '../actions/actionTypes';
 
 const initialState = {
   current: null,
-  sort: 0,
 };
 
 export default function classes(state = initialState, action = {}) {
@@ -11,12 +10,7 @@ export default function classes(state = initialState, action = {}) {
       return {
         ...state,
         current: action.classes
-      }
-    case types.TOGGLE_SORT:
-      return {
-        ...state,
-        sort: state.sort === 3 ? 0 : state.sort + 1,
-      }
+      };
     default:
       return state;
   }

@@ -1,9 +1,10 @@
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage, PermissionsAndroid } from 'react-native';
 import * as types from './actionTypes';
-import { VERSION } from '../constants';
+import { BASE_API_URL, DEFAULT_REQUEST_PARAMS, VERSION } from '../constants';
+import { generateQuery } from '../util/query';
 
-function setInitialState(data) {
-  return { type: types.SET_INITIAL_STATE, data };
+function setCourseData(data, query) {
+  return { type: types.SET_COURSE_DATA, data, query };
 }
 
 function setUserPosition(position) {
@@ -14,61 +15,46 @@ function setError(error) {
   return { type: types.SET_ERROR, error };
 }
 
-export function loadInitialState() {
-  let data, lastUpdated, version;
-
+export function fetchData(q = {}) {
   return async function (dispatch) {
-    try {
-      data = JSON.parse(await AsyncStorage.getItem('UofTDropIn:data'));
-      lastUpdated = new Date(await AsyncStorage.getItem('UofTDropIn:lastupdated'));
-      version = await AsyncStorage.getItem('UofTDropIn:version');
+    let query = Object.assign(DEFAULT_REQUEST_PARAMS, generateQuery(q));
+    let params = Object.keys(query)
+                       .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(query[key]))
+                       .join("&")
+                       .replace(/%20/g, "+");
 
-      if (!data || !version || !lastUpdated || version !== VERSION || lastUpdated.setDate(lastUpdated.getDate() + 7) < (new Date()))
-        throw new Error("Data out of date");
-    } catch(error) {
-      throw error;
-    }
-
-    dispatch(setInitialState(data));
-  }
-}
-
-export function fetchData() {
-  return async function (dispatch) {
-    let data;
-
-    await fetch('http://drop-in.kshvmdn.com/data.json')
+    await fetch(`${BASE_API_URL}/courses?${params}`)
       .then(response => response.json())
-      .then(response => {
-        let data = response;
-        dispatch(setInitialState(data));
-
-        lastUpdated = new Date();
-        AsyncStorage.multiRemove([
-          'UofTDropIn:data',
-          'UofTDropIn:lastUpdated',
-          'UofTDropIn:version',
-        ], (err) => {
-          if (err) throw err;
-
-          AsyncStorage.multiSet([
-            ['UofTDropIn:data', JSON.stringify(data)],
-            ['UofTDropIn:lastupdated', lastUpdated],
-            ['UofTDropIn:version', VERSION],
-          ], (err) => {
-            if (err) throw err;
-          });
-        });
-      })
+      .then(json => dispatch(setCourseData(json, query)))
       .catch(error => dispatch(setError(error)));
   }
 }
 
 export function loadUserPosition() {
-  return function (dispatch) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => dispatch(setUserPosition(position)),
-      (error) => console.error(error)
-    );
+  return async function (dispatch) {
+    const requestLocationPermission = async () => {
+      try {
+        const granted = await PermissionsAndroid.requestPermission(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          { title: 'Enable location', message: '', },
+        );
+
+        return granted;
+      } catch (err) {}
+    };
+
+    await requestLocationPermission().then(granted => {
+      if (!granted)
+        return dispatch(setUserPosition({ coords: { longitude: -79.3957, latitude: 43.6629 } }));
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => dispatch(setUserPosition(position)),
+        (error) => {
+          console.warn(error);
+          dispatch(setUserPosition({ coords: { longitude: -79.3957, latitude: 43.6629 } }));
+        },
+        { enableHighAccuracy: false, timeout: 60000, maximumAge: 0 }
+      );
+    });
   }
 }
