@@ -12,6 +12,10 @@ export function parseCourseData({ courses, currentPosition: userPosition }, { so
   return function (dispatch) {
     let classes = Object.values(JSON.parse(JSON.stringify(courses))).map(c => {
       c.meetings = Object.values(c.meetings).map(m => {
+        // Skip cancelled classes
+        if (m.cancel === 'Cancelled')
+          return;
+
         // Skip practicals & tutorials
         if (m.teachingMethod === 'PRA' || m.teachingMethod === 'TUT') {
           return;

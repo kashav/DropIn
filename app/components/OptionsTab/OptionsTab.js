@@ -4,7 +4,7 @@ import {
   StyleSheet,
   Text,
   TimePickerAndroid,
-  TouchableWithoutFeedback,
+  TouchableOpacity,
   View
 } from 'react-native';
 
@@ -15,7 +15,6 @@ export default class OptionsTab extends Component {
     super(props);
 
     let now = new Date();
-
     let day = now.getDay();
 
     this.state = {
@@ -59,19 +58,21 @@ export default class OptionsTab extends Component {
       <View style={styles.container}>
         <View style={styles.optionContainer}>
           <Text style={styles.headingText}>Sort method{'\n'}</Text>
-          <Text style={styles.optionText} onPress={() => this.props.setSortIndex(this.props.sort === SORT_METHODS.length - 1 ? 0 : this.props.sort + 1)}>{SORT_METHODS[this.props.sort]}</Text>
+          <TouchableOpacity delayPressIn={0} onPress={() => this.props.setSortIndex(this.props.sort === SORT_METHODS.length - 1 ? 0 : this.props.sort + 1)}>
+            <View><Text style={styles.optionText}>{SORT_METHODS[this.props.sort]}</Text></View>
+          </TouchableOpacity>
         </View>
         <View style={styles.optionContainer}>
-          <Text style={styles.headingText}>Day{'\n'}</Text>
-          <TouchableWithoutFeedback onPress={this.showDatePicker.bind(this, 'all', { date: new Date(), minDate: new Date(), maxDate: new Date(2017, 3, 31) })}>
-            <View><Text style={styles.optionText}>{ALL_DAYS[this.state.day]}</Text></View>
-          </TouchableWithoutFeedback>
-        </View>
-        <View style={styles.optionContainer}>
-          <Text style={styles.headingText}>Time{'\n'}</Text>
-          <TouchableWithoutFeedback onPress={this.showTimePicker.bind(this, 'all', { is24Hour: true })}>
-            <View><Text style={styles.optionText}>{this.formatTime(this.state.hour, this.state.minute)}</Text></View>
-          </TouchableWithoutFeedback>
+          <Text style={styles.headingText}>Day / Time{'\n'}</Text>
+          <View style={styles.dayTimeContainer}>
+            <TouchableOpacity delayPressIn={0} onPress={this.showDatePicker.bind(this, 'all', { date: new Date(), minDate: new Date(), maxDate: new Date(2017, 3, 31) })}>
+              <View><Text style={styles.optionText}>{ALL_DAYS[this.state.day]}</Text></View>
+            </TouchableOpacity>
+            <Text style={[styles.optionText, styles.dayTimeDivider]}> / </Text>
+            <TouchableOpacity delayPressIn={0} onPress={this.showTimePicker.bind(this, 'all', { is24Hour: false })}>
+              <View><Text style={styles.optionText}>{this.formatTime(this.state.hour, this.state.minute)}</Text></View>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -88,6 +89,11 @@ const styles = StyleSheet.create({
   },
   optionContainer: {
     marginVertical: 7,
+  },
+  dayTimeContainer: {
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    flexDirection:'row',
   },
   text: {
     color: '#000',

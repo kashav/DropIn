@@ -106,6 +106,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.01)',
+    borderLeftWidth: 0.5,
+    borderLeftColor: 'rgba(0, 0, 0, 0.3)',
+    borderRightWidth: 0.5,
+    borderRightColor: 'rgba(0, 0, 0, 0.3)',
   },
 });
 

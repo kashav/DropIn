@@ -89,7 +89,7 @@ export default class CurrentClassList extends Component {
     let refreshControl = (
       <RefreshControl
         color={'rgb(0, 42, 92)'}
-        enabled={!this.props.classes.current || Object.keys(this.props.classes.current).length === 0}
+        enabled={false}
         onRefresh={this.props.reloadData.bind(this)}
         refreshing={this.props.refreshing}
       />
