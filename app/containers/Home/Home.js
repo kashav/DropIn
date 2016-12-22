@@ -101,11 +101,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    zIndex: -5,
   },
   tab: {
     flex: 1,
     padding: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.01)',
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
     borderLeftWidth: 0.5,
     borderLeftColor: 'rgba(0, 0, 0, 0.3)',
     borderRightWidth: 0.5,
