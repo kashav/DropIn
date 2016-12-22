@@ -14,13 +14,12 @@ export default class OptionsTab extends Component {
   constructor(props) {
     super(props);
 
-    let now = new Date();
-    let day = now.getDay();
+    let date = new Date();
 
     this.state = {
-      day: now.getDay(),
-      hour: now.getHours(),
-      minute: now.getMinutes(),
+      date,
+      hour: date.getHours(),
+      minute: date.getMinutes(),
     };
   }
 
@@ -30,10 +29,10 @@ export default class OptionsTab extends Component {
     if (action === DatePickerAndroid.dismissedAction)
       return;
 
-    day = (new Date(year, month, day)).getDay()
+    let date = new Date(year, month, day);
 
-    this.setState({ day });
-    this.props.setDay(day);
+    this.setState({ date });
+    this.props.setDay(date.getDay());
   };
 
   showTimePicker = async (stateKey, options) => {
@@ -54,6 +53,8 @@ export default class OptionsTab extends Component {
   }
 
   render() {
+    let { hour, minute, date } = this.state;
+
     return (
       <View style={styles.container}>
         <View style={styles.optionContainer}>
@@ -65,12 +66,12 @@ export default class OptionsTab extends Component {
         <View style={styles.optionContainer}>
           <Text style={styles.headingText}>Day / Time{'\n'}</Text>
           <View style={styles.dayTimeContainer}>
-            <TouchableOpacity delayPressIn={0} onPress={this.showDatePicker.bind(this, 'all', { date: new Date(), minDate: new Date(), maxDate: new Date(2017, 3, 31) })}>
-              <View><Text style={styles.optionText}>{ALL_DAYS[this.state.day]}</Text></View>
+            <TouchableOpacity delayPressIn={0} onPress={this.showDatePicker.bind(this, 'all', { date: new Date(date), minDate: new Date(), maxDate: new Date(2017, 3, 31) })}>
+              <View><Text style={styles.optionText}>{ALL_DAYS[date.getDay()]}</Text></View>
             </TouchableOpacity>
             <Text style={[styles.optionText, styles.dayTimeDivider]}> / </Text>
-            <TouchableOpacity delayPressIn={0} onPress={this.showTimePicker.bind(this, 'all', { is24Hour: false })}>
-              <View><Text style={styles.optionText}>{this.formatTime(this.state.hour, this.state.minute)}</Text></View>
+            <TouchableOpacity delayPressIn={0} onPress={this.showTimePicker.bind(this, 'all', { hour, minute, is24Hour: false })}>
+              <View><Text style={styles.optionText}>{this.formatTime(hour, minute)}</Text></View>
             </TouchableOpacity>
           </View>
         </View>
