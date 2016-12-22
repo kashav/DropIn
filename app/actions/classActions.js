@@ -112,11 +112,6 @@ export function sortClasses({ classes, userPosition, sortIndex }) {
         sorted = classes;
     }
 
-    let parsed = {};
-
-    for (let c of sorted)
-      parsed[`${c.courseId}_${(new Date()).toISOString()}`] = c;
-
     dispatch(setCourses(sorted));
   }
 }
