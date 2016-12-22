@@ -5,6 +5,7 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   TouchableHighlight,
   View,
   ScrollView,
@@ -20,18 +21,57 @@ export default class CurrentClassList extends Component {
     let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
     this.state = {
-      currentData: props.classes.current,
+      data: props.classes.current,
       dataSource: ds.cloneWithRows(props.classes.current || []),
+      searchText: '',
+      searching: false,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.classes && nextProps.classes.current && nextProps.classes.current !== this.props.currentData) {
+    if (nextProps.classes && nextProps.classes.current) {
       this.setState({
-        currentData: nextProps.classes.current,
-        dataSource: this.state.dataSource.cloneWithRows(nextProps.classes.current),
-      });
+        data: nextProps.classes.current || [],
+        dataSource: this.state.dataSource.cloneWithRows(nextProps.classes.current || []),
+        searching: true,
+      }, () => this.handleSearch());
     }
+  }
+
+  setSearchText(event) {
+    event.persist();
+    let searchText = event.nativeEvent.text.toLowerCase().trim();
+
+    if (searchText === this.state.searchText)
+      return;
+
+    this.setState({ searchText, searching: true }, () => this.handleSearch());
+  }
+
+  handleSearch() {
+    let { dataSource, data, searchText } = this.state;
+
+    if (searchText.length < 3)
+      return this.setState({ dataSource: dataSource.cloneWithRows(data) });
+
+    // Filter a deep-cloned version of data
+    let filteredData = JSON.parse(JSON.stringify(data)).filter(row => {
+      if ([row.code, row.courseDescription, row.courseTitle, row.orgName].some(x => x && x.toLowerCase().includes(searchText)))
+        return true;
+
+      if (row.meetings.map(m => m.instructors.map(i => i.lastName).join(' ')).join(' ').toLowerCase().includes(searchText))
+        return true;
+
+      if (row.meetings.map(m => m.schedule.map(s => s.assignedRoom).join(' ')).join(' ').toLowerCase().includes(searchText))
+        return true;
+
+      return false;
+    });
+
+    this.setState({
+      dataSource: dataSource.cloneWithRows(filteredData),
+      searching: false,
+    });
   }
 
   renderRow(rowData, sectionId, rowId, highlightRow) {
@@ -107,14 +147,23 @@ export default class CurrentClassList extends Component {
 
     return (
       <View style={styles.container}>
-        <ListView
-          dataSource={this.state.dataSource}
-          enableEmptySections={true}
-          refreshControl={refreshControl}
-          renderRow={this.renderRow.bind(this)}
-          renderSeparator={this.renderSeparator.bind(this)}
-          style={styles.listView} />
-          <ClassModal ref={modal => { this.modal = modal; }}/>
+        <ClassModal ref={modal => { this.modal = modal; }}/>
+        <View style={styles.contentContainer}>
+          <TextInput
+            onChange={this.setSearchText.bind(this)}
+            onBlur={() => {this.modal.isOpen && this.modal.close()}}
+            placeholder={'Search'}
+            style={styles.searchBar}
+            underlineColorAndroid={'rgba(0,0,0,0)'}
+            value={this.state.searchText} />
+          <ListView
+            dataSource={this.state.dataSource}
+            enableEmptySections={true}
+            refreshControl={refreshControl}
+            renderRow={this.renderRow.bind(this)}
+            renderSeparator={this.renderSeparator.bind(this)}
+            style={styles.listView} />
+        </View>
       </View>
     );
   }
@@ -132,9 +181,23 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     minHeight: 0,
   },
-  container: {},
-  listView: {
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
     zIndex: -1,
+  },
+  searchBar: {
+    backgroundColor: 'transparent',
+    padding: 5,
+    paddingLeft: 15,
+    color: '#000',
+    height: 50,
+    fontFamily: 'sans-serif-light',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  listView: {
   },
   listElement: {
     backgroundColor: '#fff',
