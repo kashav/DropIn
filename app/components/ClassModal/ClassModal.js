@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
   modal: {
     maxHeight: 60*vh,
     width: 90*vw,
-    zIndex: 5,
   },
   courseView: {
     paddingHorizontal: 15,
