@@ -1,4 +1,4 @@
-export const VERSION = '0.1';
+export const VERSION = '0.2';
 
 export const ALL_DAYS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 export const ALL_DAYS_ABBR = ALL_DAYS.map(d => d.slice(0, 2));
