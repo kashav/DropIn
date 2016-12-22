@@ -42,7 +42,7 @@ export default class TabBar extends Component {
 
   render() {
     const tabWidth = this.props.containerWidth / this.props.tabs.length;
-    const left = this.props.scrollValue.interpolate({ inputRange: [0, 1, ], outputRange: [0, tabWidth ] });
+    const left = this.props.scrollValue.interpolate({ inputRange: [0, 1], outputRange: [0, tabWidth] });
 
     return (
       <View>
@@ -52,7 +52,7 @@ export default class TabBar extends Component {
               <Icon
                 name={tab}
                 ref={icon => { this.state.tabIcons[i] = icon; }}
-                size={23}  />
+                size={30} />
             </TouchableOpacity>
           ))}
         </View>

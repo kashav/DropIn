@@ -1,41 +1,63 @@
 import * as types from './actionTypes';
-import { ALL_DAYS, SORT_METHODS } from '../constants';
+import { ALL_DAYS, DEFAULT_LOCATION, SORT_METHODS } from '../constants';
+import { parseSecondsFromTime } from '../util/time';
 import { calculateDistance } from '../util/location';
+import buildings from '../data/buildings.json';
 
 function setCourses(classes) {
   return { type: types.SET_CURRENT_CLASSES, classes };
 }
 
-export function toggleSort() {
-  return { type: types.TOGGLE_SORT };
-}
-
-export function findCurrentCourses({ courses: allCourses, buildings, currentPosition: userPosition }, { sort: sortIndex }) {
+export function parseCourseData({ courses, currentPosition: userPosition }, { sort: sortIndex }, cb = () => {}) {
   return function (dispatch) {
-    let now = new Date();
-    let currentDay = ALL_DAYS[now.getDay()];
-    let currentTime = now.getHours() * 60 * 60 + now.getMinutes() * 60;
+    let classes = Object.values(JSON.parse(JSON.stringify(courses))).map(c => {
+      c.meetings = Object.values(c.meetings).map(m => {
+        // Skip cancelled classes
+        if (m.cancel === 'Cancelled')
+          return;
 
-    // const TIMES = [{ currentDay: 'WEDNESDAY', currentTime: 46900 }, { currentDay: 'FRIDAY', currentTime: 35340 }, { currentDay: 'THURSDAY', currentTime: 60000 }];
-    // let { currentDay, currentTime } = TIMES[Math.floor(Math.random()*TIMES.length)];
+        // Skip practicals & tutorials
+        if (m.teachingMethod === 'PRA' || m.teachingMethod === 'TUT') {
+          return;
+        }
 
-    let classes = JSON.parse(JSON.stringify(allCourses)).map(c => {
-      c.meeting_sections = c.meeting_sections.map(s => {
-        s.times = s.times.filter(t => t.day === currentDay && currentTime <= t.end && t.start <= currentTime + 1800);
+        m.instructors = Object.values(m.instructors);
 
-        if (/^(L)\d{4}$/i.test(s.code) && s.times.length > 0)
+        m.schedule = Object.values(m.schedule).map(s => {
+          // If fall and spring location are different, concatenate them,
+          // otherwise use the non-null one
+          s.assignedRoom = s.assignedRoom1
+            ? s.assignedRoom2
+              ? s.assignedRoom1 === s.assignedRoom2
+                ? s.assignedRoom1
+                : `${s.assignedRoom1} (F), ${s.assignedRoom2} (S)`
+              : s.assignedRoom1
+            : s.assignedRoom2;
+
+          let building = s.assignedRoom.slice(0, 2);
+          s.meetingLocation = Object.keys(buildings).includes(building)
+            ? buildings[building]
+            : DEFAULT_LOCATION;
+
+          s.meetingStartTime = parseSecondsFromTime(s.meetingStartTime);
+          s.meetingEndTime = parseSecondsFromTime(s.meetingEndTime);
+
           return s;
-      }).filter(s => s);
+        }).filter(s => s);
 
-      if (c.meeting_sections.length > 0)
+        return m;
+      }).filter(m => m);
+
+      if (c.meetings && c.meetings.length > 0)
         return c;
     }).filter(c => c);
 
-    dispatch(sortClasses({ classes, buildings, userPosition, sortIndex }));
+    cb();
+    dispatch(sortClasses({ classes, userPosition, sortIndex }));
   }
 }
 
-export function sortClasses({ classes, buildings, userPosition, sortIndex }) {
+export function sortClasses({ classes, userPosition, sortIndex }) {
   return function(dispatch) {
     let sorted;
 
@@ -46,21 +68,28 @@ export function sortClasses({ classes, buildings, userPosition, sortIndex }) {
       case 'LOCATION':
         let userCoords = userPosition
           ? { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude }
-          : { lat: 43.6629, lng: -79.3957 };
+          : DEFAULT_LOCATION;
+
         let distances = new Map();
 
         sorted = classes.sort((a, b) => {
           let distFromA, distFromB;
 
           try {
-            let { lat: latA, lng: lngA } = buildings[a.meeting_sections[0].times[0].location.building];
-            let { lat: latB, lng: lngB } = buildings[b.meeting_sections[0].times[0].location.building];
+            let { lat: latA, lng: lngA } = a.meetings[0].schedule[0].meetingLocation;
+            let { lat: latB, lng: lngB } = b.meetings[0].schedule[0].meetingLocation;
 
             let posA = `${latA},${lngA}`;
             let posB = `${latB},${lngB}`;
 
-            distFromA = distances.has(posA) ? distances.get(posA) : calculateDistance(userCoords, {lat: latA, lng: lngA});
-            distFromB = distances.has(posB) ? distances.get(posB) : calculateDistance(userCoords, {lat: latB, lng: lngB});
+            distFromA = distances.has(posA)
+              ? distances.get(posA)
+              : calculateDistance(userCoords, { lat: latA, lng: lngA });
+
+            distFromB = distances.has(posB)
+              ? distances.get(posB)
+              : calculateDistance(userCoords, { lat: latB, lng: lngB });
+
             distances.set(posA, distFromA);
             distances.set(posB, distFromB);
           } catch(e) {
@@ -72,20 +101,22 @@ export function sortClasses({ classes, buildings, userPosition, sortIndex }) {
 
         break;
       case 'TIME':
-        sorted = classes.sort((a, b) => (a.meeting_sections[0].times[0].start > b.meeting_sections[0].times[0].start) ? 1 : ((b.meeting_sections[0].times[0].start > a.meeting_sections[0].times[0].start) ? -1 : 0));
+        sorted = classes.sort((a, b) => {
+          try { return a.meetings[0].schedule[0].meetingStartTime - b.meetings[0].schedule[0].meetingStartTime; } catch(e) { return 1; }
+        });
         break;
       case 'NAME':
-        sorted = classes.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        sorted = classes.sort((a, b) => (a.courseTitle > b.courseTitle) ? 1 : ((b.courseTitle > a.courseTitle) ? -1 : 0));
         break;
       default:
         sorted = classes;
     }
 
-    let classesObj = {};
+    let parsed = {};
 
-    for (let c of classes)
-      classesObj[`${c.id}_${(new Date()).toISOString()}`] = c;
+    for (let c of sorted)
+      parsed[`${c.courseId}_${(new Date()).toISOString()}`] = c;
 
-    dispatch(setCourses(classesObj));
+    dispatch(setCourses(sorted));
   }
 }

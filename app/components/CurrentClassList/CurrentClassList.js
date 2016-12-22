@@ -21,27 +21,21 @@ export default class CurrentClassList extends Component {
 
     this.state = {
       currentData: props.classes.current,
-      dataSource: ds.cloneWithRows(Object.keys(props.classes.current)),
-      refreshing: false,
+      dataSource: ds.cloneWithRows(props.classes.current || []),
     };
   }
 
-  reloadData() {
-    this.setState({ refreshing: true }, () => {
-      this.props.findCurrentCourses(this.props.data, this.props.classes);
-
-      setTimeout(() => {
-        this.setState({
-          currentData: this.props.classes.current,
-          dataSource: this.state.dataSource.cloneWithRows(Object.keys(this.props.classes.current)),
-          refreshing: false
-        });
-      }, 2000)
-    });
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.classes && nextProps.classes.current && nextProps.classes.current !== this.props.currentData) {
+      this.setState({
+        currentData: nextProps.classes.current,
+        dataSource: this.state.dataSource.cloneWithRows(nextProps.classes.current),
+      });
+    }
   }
 
   renderRow(rowData, sectionId, rowId, highlightRow) {
-    let course = this.state.currentData[rowData];
+    let course = rowData;
 
     return (
       <View style={styles.listElement}>
@@ -50,26 +44,25 @@ export default class CurrentClassList extends Component {
             this.modal.open(course);
             highlightRow(sectionId, rowId);
           }}
-          underlayColor={'#fff'}
-        >
+          underlayColor={'#fff'}>
           <Text style={styles.listElementText}>
             <Text style={styles.courseMain}>
               <Text style={styles.courseCode}>{course.code}: </Text>
-              <Text style={styles.courseName}>{course.name}</Text>
+              <Text style={styles.courseName}>{course.courseTitle}</Text>
             </Text>{`\n`}
             <Text style={styles.courseMeetingSections}>
-              {course.meeting_sections.map((s, i) => {
-                let hasTime = s.times[0] && s.times[0].start && s.times[0].end;
-                let hasLocation = s.times[0] && s.times[0].location && s.times[0].location.hall;
-                let hasSize = s.enrolment && s.size && s.size !== 9999;
+              {course.meetings.map((m, i) => {
+                let hasTime = m.schedule[0] && m.schedule[0].meetingStartTime && m.schedule[0].meetingEndTime;
+                let hasLocation = m.schedule[0] && m.schedule[0].assignedRoom;
+                let hasSize = m.actualEnrolment && m.enrollmentCapacity;
 
                 return (
                   <Text key={i} style={styles.coureMeetingSection}>
-                    {hasTime && <Text style={styles.courseTime}>{courseUtils.formTimeString(s.times[0].start)} - {courseUtils.formTimeString(s.times[0].end)}</Text>}
+                    {hasTime && <Text style={styles.courseTime}>{courseUtils.formTimeString(m.schedule[0].meetingStartTime)} - {courseUtils.formTimeString(m.schedule[0].meetingEndTime)}</Text>}
                     {hasTime && hasLocation && <Text>&nbsp;·&nbsp;</Text>}
-                    {hasLocation && <Text style={styles.courseLocation}>{s.times[0].location.hall}</Text>}
+                    {hasLocation && <Text style={styles.courseLocation}>{m.schedule[0].assignedRoom}</Text>}
                     {((hasLocation && hasSize) || (hasTime && hasSize)) && <Text>&nbsp;·&nbsp;</Text>}
-                    {hasSize && <Text style={styles.enrolment}>{s.enrolment}/{s.size} {`(${((s.enrolment/s.size) * 100).toFixed(1)}%)`}{`\n`}</Text>}
+                    {hasSize && <Text style={styles.enrolment}>{m.actualEnrolment}/{m.enrollmentCapacity} {`(${((m.actualEnrolment/m.enrollmentCapacity) * 100).toFixed(1)}%)`}{`\n`}</Text>}
                   </Text>
                 );
               })}
@@ -95,13 +88,14 @@ export default class CurrentClassList extends Component {
   render() {
     let refreshControl = (
       <RefreshControl
-        refreshing={this.state.refreshing}
-        onRefresh={this.reloadData.bind(this)}
         color={'rgb(0, 42, 92)'}
+        enabled={false}
+        onRefresh={this.props.reloadData.bind(this)}
+        refreshing={this.props.refreshing}
       />
     );
 
-    if (!this.props.classes.current || Object.keys(this.props.classes.current).length === 0) {
+    if (!this.props.classes || !this.props.classes.current || this.props.classes.current.length === 0) {
       return (
         <ScrollView style={styles.container} refreshControl={refreshControl}>
           <Text style={[styles.listElement, styles.noResultsElement]}>
@@ -120,7 +114,7 @@ export default class CurrentClassList extends Component {
           renderRow={this.renderRow.bind(this)}
           renderSeparator={this.renderSeparator.bind(this)}
           style={styles.listView} />
-          <ClassModal ref={modal => { this.modal = modal; }} buildings={this.props.data.buildings}/>
+          <ClassModal ref={modal => { this.modal = modal; }}/>
       </View>
     );
   }
@@ -138,8 +132,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     minHeight: 0,
   },
-  container: {
-  },
+  container: {},
   listView: {
     zIndex: -1,
   },
@@ -163,6 +156,5 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif-light',
     fontSize: 12.5,
   },
-  courseTime: {
-  },
+  courseTime: {},
 });

@@ -3,39 +3,50 @@ import { StatusBar, StyleSheet, ToastAndroid, View } from 'react-native';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { vw, vh, vmin, vmax } from 'react-native-viewport-units';
 
+import * as dataActions from '../../actions/dataActions';
 import * as classActions from '../../actions/classActions';
+import * as optionActions from '../../actions/optionActions';
+
 import CurrentClassList from '../../components/CurrentClassList';
 import EmptyRoomList from '../../components/EmptyRoomList'
-import ErrorCard from '../../components/ErrorCard';
 import InfoModal from '../../components/InfoModal';
+import OptionsTab from '../../components/OptionsTab';
 import TabView from '../../components/TabView';
 import Toolbar from '../../components/Toolbar';
-import { SORT_METHODS } from '../../constants';
 
 class Home extends Component {
   constructor(props) {
     super(props);
-    this.state = { title: 'Drop-In', activeTab: 0 };
+    this.state = {
+      title: 'Drop-In',
+      activeTab: 0,
+      refreshing: false,
+      loading: true,
+    };
   }
 
   componentWillMount() {
     let { classActions, state } = this.props;
-    classActions.findCurrentCourses(state.data, state.classes);
+
+    if (state.error)
+      return this.setState({ loading: false });
+
+    classActions.parseCourseData(state.data, { sort: state.options.sort }, () => {
+      this.setState({ loading: false });
+    });
   }
 
-  toggleSort() {
-    let { classActions, state } = this.props;
+  reload() {
+    let { classActions, dataActions, state: { options: { day, time } } } = this.props;
 
-    ToastAndroid.show(
-      `Sorting by ${( (state.classes.sort + 1) === SORT_METHODS.length
-        ? SORT_METHODS[0]
-        : SORT_METHODS[state.classes.sort+1]).toLowerCase()}`,
-      ToastAndroid.SHORT);
-
-    classActions.toggleSort();
-    this.classList.reloadData();
+    this.setState({ refreshing: true }, () => {
+      dataActions.fetchData({ day, time }).then(() => {
+        classActions.parseCourseData(this.props.state.data, this.props.state.options, () => {
+          this.setState({ refreshing: false });
+        });
+      });
+    });
   }
 
   showInfoModal() {
@@ -45,32 +56,11 @@ class Home extends Component {
   render() {
     const { state } = this.props;
 
-    if (!state.data || !state.data.buildings || !state.data.courses || !state.classes.current) {
+    if (state.loading) {
       return (
         <View style={{flex: 1}}>
           <Spinner visible={true} size={'large'} color={'rgb(0, 42, 92)'} overlayColor={'#efefef'}/>
         </View>
-      );
-    }
-
-    let component;
-
-    if (state.error !== null) {
-      component = <ErrorCard />;
-    } else {
-      component = (
-        <TabView onChangeTab={({ i, ref }) => this.setState({ activeTab: i })}>
-          <View tabLabel='school' style={styles.tab}>
-            <CurrentClassList
-              data={state.data}
-              classes={state.classes}
-              ref={classList => { this.classList = classList; }}
-              {...this.props.classActions} />
-          </View>
-          <View tabLabel='room' style={styles.tab}>
-            <EmptyRoomList />
-          </View>
-        </TabView>
       );
     }
 
@@ -80,19 +70,32 @@ class Home extends Component {
         <StatusBar />
         <Toolbar
           title={this.state.title}
-          allowActions={!this.props.error}
-          onTabAction={() => this.state.activeTab === 0 ? this.toggleSort() : console.log('action invoked')}
+          reload={this.reload.bind(this)}
           showInfoModal={this.showInfoModal.bind(this)} />
-        {component}
+        <TabView onChangeTab={({ i, ref }) => this.setState({ activeTab: i })}>
+          <View tabLabel='school' style={styles.tab}>
+            <CurrentClassList
+              data={state.data}
+              classes={state.classes}
+              options={state.options}
+              reloadData={this.reload.bind(this)}
+              ref={classList => { this.classList = classList; }}
+              refreshing={this.state.refreshing}
+              {...this.props.classActions} />
+          </View>
+          {/* <View tabLabel='room' style={styles.tab}>
+            <EmptyRoomList />
+          </View> */}
+          <View tabLabel='settings' style={styles.tab}>
+            <OptionsTab
+              sort={state.options.sort}
+              {...this.props.optionActions} />
+          </View>
+        </TabView>
       </View>
     );
   }
 }
-
-export default connect(
-  state => ({ state }),
-  dispatch => ({ classActions: bindActionCreators(classActions, dispatch) })
-)(Home);
 
 const styles = StyleSheet.create({
   container: {
@@ -103,5 +106,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.01)',
+    borderLeftWidth: 0.5,
+    borderLeftColor: 'rgba(0, 0, 0, 0.3)',
+    borderRightWidth: 0.5,
+    borderRightColor: 'rgba(0, 0, 0, 0.3)',
   },
 });
+
+export default connect(
+  state => ({ state }),
+  dispatch => ({
+    classActions: bindActionCreators(classActions, dispatch),
+    dataActions: bindActionCreators(dataActions, dispatch),
+    optionActions: bindActionCreators(optionActions, dispatch),
+  })
+)(Home);
