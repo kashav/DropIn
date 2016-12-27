@@ -14,10 +14,8 @@ export default class InfoModal extends Component {
 
   linkPressed(url) {
     Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported)
-          return Linking.openURL(url);
-      }).catch(err => console.error('Couldn\'t open URL.'))
+      .then(supported => supported ? Linking.openURL(url) : null)
+      .catch(err => console.error('Couldn\'t open URL.'))
   }
 
   onButtonHighlight() {

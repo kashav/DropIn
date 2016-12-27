@@ -30,18 +30,18 @@ export default class ClassModal extends Component {
 
   linkPressed(url) {
     Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported) return Linking.openURL(url);
-      }).catch(err => console.error('Couldn\'t open URL.'))
+      .then(supported => supported ? Linking.openURL(url) : null)
+      .catch(err => console.error('Couldn\'t open URL.'))
   }
 
   normalizeText(text) {
-    return text.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/<(\w)+>|<\/(\w)+>/g, '');
+    return text.replace(/&nbsp;/g, ' ')
+               .replace(/&amp;/g, '&')
+               .replace(/<br(\s|\/)*>/gm, '\n')
+               .replace(/<(?:.|\n)*?>/gm, '')
   }
 
   prepareLocationString(room, location) {
-    let lat, lng;
-
     let geo = (location && location.lat && location.lng)
       ? `geo:${location.lat},${location.lng}`
       : `geo:${42.6629},${-79.3957}`;
